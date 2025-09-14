@@ -1,0 +1,2931 @@
+openapi: 3.1.0
+info:
+  title: Payaza
+  description: Payaza API Documentation
+  contact:
+    name: Payaza API Support
+    email: test_email@gmail.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://api.payaza.africa
+    description: Production server
+  - url: https://router-live.78financials.com
+
+paths:
+  /live/payout-receptor/payout:
+    post:
+      summary: Initiate A Transfer
+      operationId: initiateATransfer
+      description: |
+        ***
+        ##### Note:
+        Payaza bank codes can be accessed [here](https://docs.google.com/spreadsheets/d/1ZvJBIIHMlqIy0pRYDHL-4PYFpHWXgIYV3lZFSgseV7o/edit?pli=1&gid=790657640#gid=790657640)
+        ***
+        Please be advised that payouts to countries other than Nigeria are exclusively available upon request.    
+        To initiate this process, kindly send an email to **support@payaza.africa**.     
+        You will be granted access once our team reviews and approves your request. 
+        ***  
+        The account_reference value is retrieved when you use the View Payaza Account Details API [add link later]()
+        ***
+
+        #### Key Parameters
+        The provided API request body is designed to accommodate transactions across various currencies. However, there are four parameters that vary depending on the country:
+
+        - ***transaction_type***: This parameter signifies the category or type of account receiving the transfer.
+        - ***account_reference***: This parameter represents the unique reference associated with the Payaza account.
+        - ***currency***: This parameter represents the currency code for the transfer, which varies based on the country involved such as NGN, GHS, TZS, UGX, KES and XOF.
+        - ***country***: This parameter represents the ISO 3166-1 alpha-3 country code. This is required for XOF payments.
+
+
+        ***  
+        #### Detailed Description of Parameters
+        - ***transaction_type***:  
+         Definition: The transaction_type parameter signifies the category or type of account that is the recipient of the transfer, which varies by country.
+         Usage: Depending on the country-specific requirements, the transaction_type value should be set accordingly to facilitate accurate transfers, as different countries may have distinct account classifications.
+
+          | CURRENCIES| transaction_type| value|
+          |-----------|-----------------|------|  
+          | NGN (Nigeria)| nuban        |      |
+          | GHS (Ghana) | ghipps | mobile_money |
+          | KES (Kenya) | kepss | mobile_money |
+          | TZS (Tanzania) | | mobile_money|
+          | UGX (Uganda) | | mobile_money|
+          | XOF (Bennin) | | mobile_money |
+          | XOF (Cote D'Ivoire) | | mobile_money |  
+
+
+        - ***account_reference***:   
+         Definition: The account_reference parameter indicates the unique reference of the Payaza account corresponding to each currency utilized.
+         Usage: Each currency has a distinct account reference attached to it, retrieved from the ***View Payaza Account Details*** API, ensuring precise transactions based on the designated account.
+         
+
+           #### 🇬🇭 GHS Transfer
+        ```
+         "transaction_type": "ghipps"
+          "service_payload": {
+          "account_reference": "3012345678",
+          "currency": "GHS",
+         "country": "GHA"
+         ...
+        ```
+
+        #### 🇧🇯 XOF (Benin) mobile money
+        ```
+            "transaction_type": "mobile_money"
+            "service_payload": {
+            "account_reference": "9012345678",
+            "currency": "XOF"
+            "country": "BEN",
+            ...
+        ```
+         #### Note:  
+         Kindly note that the account_reference is ***_payazaAccountReference_*** in the ***View Payaza Account Details Response body*** 
+
+         Below is a Truncated View Payaza Account Details Sample Response  
+         ```
+            {
+             "message": "Account enquiry response",
+             "status": true,
+             "data": [
+              {
+               "id": 3526,
+               "accountName": "Integrations",
+               "payazaAccountReference": "5012345678",
+               "status": "ACTIVE",
+                "accountBalance": 14300.00,
+              }]
+         ```  
+          - ***currency***:   
+            Definition: The currency parameter specifies the transfer currency code (e.g., NGN, GHS) for the transaction.
+            Usage: The currency code must align with the desired currency for the transfer.
+
+            ###### Note:   
+            Kindly note that the Default is NGN
+            
+
+         - ***country***:   
+           Definition: The country parameter represents the ***ISO 3166-1 alpha-3*** country code.
+           Usage: Use the desired country code for your transfer.
+           ##### Note:   
+           Kindly note that this is required for XOF payments.
+          
+          ***  
+           #### Authorization Header Values
+           ***Authorization***   
+           Payaza Base 64 encoded merchant's Public API key  
+
+           ***x-TenantID***  
+           Connection mode: “live” or “test”
+
+          ```
+          { 
+            "authorization": Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC,
+            "x-TenantID": test
+         }
+          ```
+         ***
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: "Connection mode: “live” or “test”"
+          example: test
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/requestForInitiateTransfer"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/responseForInitiateTransfer"
+        "400":
+          description: Bad Request
+
+  /live/payaza-account/api/v1/mainaccounts/merchant/provider/enquiry:
+    post:
+      summary: Get Account Name Enquiry
+      operationId: getAccountNameEnquiry
+      description: |
+        #### This endpoint fetches the account details.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: "Connection mode: “live” or “test”"
+          example: test
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/requestForAccountNameEnquiry"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/responseForAccountNameEnquiry"
+
+  /live/payaza-account/api/v1/mainaccounts/merchant/transaction/{transaction_reference}:
+    get:
+      summary: Transaction Status Query
+      operationId: transactionStatusQueryPayout
+      description: |
+        #### This endpoint fetches the account details.
+                 | STATUS| MEANING
+          |-----------|-----------------
+          | <b>TRANSACTION_INITIATED</b>| The transaction has been received and queued for processing|
+          | <b>NIP_SUCCESS</b> | The transaction is successful. |
+          | <b>NIP_PENDING</b> | The transaction is still in progress. |
+          | <b>NIP_FAILURE</b> | The transaction has failed. | 
+          | <b>ESCROW_SUCCESS</b> | The amount has been deducted, but it is being processed by the bank, and it can be reversed due to network problems. |
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: test
+          schema:
+            type: string
+        - name: transaction_reference
+          in: path
+          required: true
+          schema:
+            type: string
+            example: Ref382750230
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Before Payment":
+                  value:
+                    {
+                      "message": "Transaction fetched",
+                      "status": true,
+                      "retry_count": 0,
+                      "data":
+                        {
+                          "transactionDateTime": "2023-02-02T17:08:55.084673",
+                          "transactionReference": "1242368116",
+                          "creditAccount": "1023213616",
+                          "bankCode": "000004",
+                          "beneficiaryName": "WILSON JAMES",
+                          "transactionAmount": 300,
+                          "fee": 10,
+                          "sessionId": "999999240902170916631388211854",
+                          "transactionStatus": "NIP_SUCCESS",
+                          "narration": "Remittance",
+                          "transactionType": "DEBIT",
+                          "responseMessage": "Approved or Completely Successful",
+                          "responseCode": "00",
+                          "currency": "NGN",
+                          "balanceBefore": 431.1,
+                          "balanceAfter": 121.1,
+                          "duration": {},
+                        },
+                    }
+        "400":
+          description: Bad request
+
+  /live/payaza-account/api/v1/mainaccounts/merchant/enquiry/main:
+    get:
+      summary: View Payaza Account Details.
+      operationId: viewPayazaAccountDetails
+      description: |
+        #### This endpoint returns the Payaza account details for a merchant.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: test
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: |
+            ```
+            {
+                "message": "Account enquiry response",
+                "status": true,
+                "data": [
+                  {
+                    "id": 1,
+                    "accountName": "Test Merchant",
+                    "payazaAccountReference": "1010000000",
+                    "status": "ACTIVE",
+                    "accountBalance": 990.13,
+                    "businessId": 92,
+                    "currency": "NGN",
+                    "country": "NGA",
+                    "organizationName": "PAYAZA",
+                    "productCode": "PAYOUT-MAIN-NGN",
+                    "productNumber": "101",
+                    "postNoCredit": false,
+                    "postNoDebit": false,
+                    "originatorName": null,
+                    "pauseTransactions": null,
+                    "hasVirtualAccounts": true,
+                    "holdTransactionAtLowBalance": false,
+                    "virtualAccounts": [
+                      {
+                        "accountNumber": "99926838326",
+                        "accountName": "PAYAZA(Test Merchant)",
+                        "bankCode": "000023",
+                        "bankId": 306
+                      }
+                    ]
+                  },
+                  {
+                    "id": 1658,
+                    "accountName": "Test Merchant",
+                    "payazaAccountReference": "3010000000",
+                    "status": "ACTIVE",
+                    "accountBalance": 673.26,
+                    "businessId": 1,
+                    "currency": "GHS",
+                    "country": "NGA",
+                    "organizationName": "PAYAZA",
+                    "productCode": "PAYOUT-MAIN-GHS",
+                    "productNumber": "301",
+                    "postNoCredit": false,
+                    "postNoDebit": false,
+                    "originatorName": null,
+                    "pauseTransactions": null,
+                    "hasVirtualAccounts": false,
+                    "holdTransactionAtLowBalance": false,
+                    "virtualAccounts": []
+                  }
+                ]
+              }          
+            ```
+
+  /live/payaza-account/api/v1/subaccounts/merchant:
+    post:
+      summary: Create A Subaccount
+      operationId: createASubAccount
+      description: |
+        #### This endpoint creates a subaccount.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: test
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mainAccountPayazaReference:
+                  type: string
+                  description: The Reference of the main Payaza account
+                  example: 100000000
+                name:
+                  type: string
+                  description: The name of this subaccount
+                  example: Test Sub Account
+                currency:
+                  type: string
+                  description: The currency code
+                  example: NGN
+      responses:
+        "200":
+          description: |
+            ```
+               {
+              "message": "New account created",
+              "status": true,
+              "data": [
+                {
+                  "id": 1110,
+                  "accountName": "Test Sub Account",
+                  "accountStatus": "ACTIVE",
+                  "accountBalance": 0,
+                  "escrowBalance": 0,
+                  "businessFk": 11407,
+                  "currency": "NGN",
+                  "owner": "PAYAZA",
+                  "country": "NGA",
+                  "creationReference": "DC625576B5BF426A94CB6B1D868C0",
+                  "actionStatus": "ACTIVE",
+                  "payazaAccountReference": "2010000120",
+                  "pnc": false,
+                  "pnd": false,
+                  "virtualAccounts": [
+                    {
+                      "accountNumber": "9977719429",
+                      "accountName": "MERCHANT(Test Sub Account)",
+                      "bankCode": "000023"
+                    }
+                  ]
+                }
+              ]
+            }         
+                ```
+
+  /live/payaza-account/api/v1/subaccounts/merchant/enquiry/{payazaSubAccountReference}:
+    get:
+      summary: View Payaza Subaccount Details
+      operationId: viewSubAccountDetails
+      description: |
+        #### This endpoint returns the Payaza subaccount details
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: test
+          schema:
+            type: string
+        - name: payazaSubAccountReference
+          in: path
+          required: true
+          schema:
+            type: string
+            example: Ref382750230
+      responses:
+        "200":
+          description: |
+            ```
+                                  {
+                      "message": "Account enquiry response",
+                      "status": true,
+                      "data": [
+                        {
+                          "id": 1110,
+                          "accountName": "Test Sub Account",
+                          "payazaAccountReference": "2010000120",
+                          "status": "ACTIVE",
+                          "accountBalance": 0,
+                          "businessId": 11407,
+                          "currency": "NGN",
+                          "country": "NGA",
+                          "organizationName": "PAYAZA",
+                          "productCode": "PAYOUT-SUB-NGN",
+                          "productNumber": "201",
+                          "postNoCredit": false,
+                          "postNoDebit": false,
+                          "originatorName": null,
+                          "pauseTransactions": null,
+                          "hasVirtualAccounts": true,
+                          "virtualAccounts": [
+                            {
+                              "accountNumber": "9977719429",
+                              "accountName": "MERCHANT(Test Sub Account)",
+                              "bankCode": "000023",
+                              "bankId": 2789
+                            }
+                          ],
+                          "createdDate": "2023-11-09T13:05:15.611669"
+                        }
+                      ],
+                      "pageDetail": {
+                        "sorted": false,
+                        "pageNumber": 0,
+                        "pageSize": 0,
+                        "paged": false,
+                        "totalPages": 0,
+                        "totalElements": 0,
+                        "last": false,
+                        "size": 0,
+                        "number": 0,
+                        "numberOfElements": 0,
+                        "offset": null
+                      },
+                      "totalCount": 0,
+                      "responseCode": null
+                    }         
+                                  
+                ```
+
+  /live/merchant-collection/merchant/virtual_account/generate_virtual_account:
+    post:
+      summary: Create Dynamic Virtual Account
+      operationId: createDynamicVirtualAccount
+      description: |
+        #### This API endpoint allows you to create dynamic virtual accounts. These accounts have a duration of 30 minutes.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: "Connection mode: “live” or “test”"
+          example: test
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: ‟accept″ or ‟decline″
+                  example: accept
+                chargeback_fk:
+                  type: integer
+                  description: The unique identifier of the chargeback. This can be retrieved in the Chargeback request API response.
+                  example: 39
+                comment:
+                  type: string
+                  description: A brief note on your chargeback action
+                  example: Test
+                evidence_url:
+                  type: string
+                  description: A brief note on your chargeback action
+                  example: Test
+      responses:
+        "200":
+          description: |
+            ```
+                 {
+                    "message": "Virtual Account generated successfully",
+                    "data": {
+                      "account_name": "Payaza(Test DVA)",
+                      "account_number": "7000009348",
+                      "account_type": "Dynamic",
+                      "bank_name": "78 FINANCE COMPANY LIMITED",
+                      "account_reference": "Ref123456780",
+                      "transaction_id": 23366137,
+                      "transaction_amount_payable": 1000,
+                      "transaction_reference": "Ref123456780",
+                      "expires_in_minutes": 20
+                    },
+                    "success": true
+                  } 
+                                  
+                ```
+
+  /live/merchant-collection/merchant/virtual_account/generate_virtuabl_account:
+    post:
+      summary: Create Reserved Virtual Account
+      operationId: createReservedVirtualAccount
+      description: |
+        #### This endpoint creates a reserved/static virtual account.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: "Connection mode: “live” or “test”"
+          example: test
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/requestForCreateASubaccount"
+      responses:
+        "200":
+          description: |
+            ```
+                                    {
+                    "message": "Virtual Account generated successfully",
+                    "data": {
+                      "account_name": "Payaza(Test Reserved VA)",
+                      "account_number": "7000009201",
+                      "account_type": "Static",
+                      "bank_name": "78 FINANCE COMPANY LIMITED",
+                      "account_reference": "accRef123"
+                    },
+                    "success": true
+                  }  
+                                  
+                ```
+
+  /live/merchant-collection/merchant/virtual_account/detail/virtual_account/{virtualAccountNumber}:
+    get:
+      summary: Get Reserved Virtual Account Status.
+      operationId: getVirtualAccountStatus
+      description: |
+        #### This endpoint retrieves the status of a specific virtual account using the account number. It works for only static virtual accounts.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: virtualAccountNumber
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 4030623702
+      responses:
+        "200":
+          description: |
+            ```
+                              {
+                "message": "Successful",
+                "data": {
+                  "virtual_account_number": "4030623702",
+                  "virtual_account_name": "Payaza(Test Reserved VA)",
+                  "account_type": "static",
+                  "account_status": "Active",
+                  "total_transactions": 0,
+                  "provider_bank_name": "78 FINANCE COMPANY LIMITED",
+                  "provider_bank_code": "110072"
+                },
+                "success": true
+              } 
+
+                                  
+                ```
+
+  /live/merchant-collection/transfer_notification_controller/transaction-query:
+    get:
+      summary: Transaction Status Query(VirtualAccount).
+      operationId: TransactionStatusQueryVA
+      description: |
+        #### This endpoint is used to check the status of a transaction using the transaction reference.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+        - name: X-TenantID
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: test
+          schema:
+            type: string
+        - name: transaction_reference
+          in: query
+          required: true
+          description: The unique reference ID of the transaction
+          schema:
+            type: string
+            example: Ref1234567890
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Before Payment":
+                  value:
+                    {
+                      "message": "Transaction data found",
+                      "data":
+                        {
+                          "transaction_reference": "Ref1234567890",
+                          "amount_received": 1000,
+                          "transaction_fee": 0,
+                          "transaction_status": "Initialized",
+                          "sender_name": null,
+                          "sender_account_number": null,
+                          "source_bank_name": null,
+                          "initiated_date": "2024-10-10 18:18:09.117098",
+                          "current_status_date": null,
+                          "currency": "NGN",
+                          "session_id": "",
+                          "merchant_transaction_reference": "Ref1234567890",
+                          "transaction_type": "VirtualAccount",
+                          "virtual_account_number": "7000009348",
+                          "status_reason": "Awaiting customer to complete payment",
+                        },
+                      "success": true,
+                    }
+
+                "After Payment":
+                  value:
+                    {
+                      "message": "Transaction data found",
+                      "data":
+                        {
+                          "transaction_reference": "Ref1234567890",
+                          "amount_received": 1000,
+                          "transaction_fee": 0,
+                          "transaction_status": "Completed",
+                          "sender_name": "Jill Stones",
+                          "sender_account_number": "0123456789",
+                          "source_bank_name": null,
+                          "initiated_date": "2024-10-10 19:41:04.312997",
+                          "current_status_date": "2024-10-10 19:41:04.312977",
+                          "currency": "NGN",
+                          "session_id": "8c35b4b0-161f-4f94-900b-05c358461d13",
+                          "merchant_transaction_reference": "Ref1234567890",
+                          "transaction_type": "VirtualAccount",
+                          "virtual_account_number": "7000009348",
+                          "status_reason": "Transfer Successful",
+                        },
+                      "success": true,
+                    }
+        "400":
+          description: Bad Request
+
+  /live/merchant-collection/payaza/virtual_account/fund_test_virtual_account:
+    post:
+      summary: Fund Test Virtual Account
+      operationId: fundTestVirtualAccount
+      description: |
+        #### This endpoint funds the test virtual accounts. Please note that this API is just for Test.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account_name:
+                  type: string
+                  description: The name assigned to the virtual account
+                  example: Payaza(Test DVA)
+                virtual_account_number:
+                  type: string
+                  description: The virtual account number
+                  example: 4030904675
+                initiation_transaction_reference:
+                  type: string
+                  description: <b>Required</b> (for Dynamic Virtual Account). The unique identifier for the transaction. This value is empty for reserved virtual accounts
+                  example: Ref1234567890
+                transaction_amount:
+                  type: string
+                  description: The amount to be paid
+                  example: 1000
+                currency:
+                  type: string
+                  description: Currency code for the collection. Value is ‟NGN”
+                  example: NGN
+                source_account_number:
+                  type: string
+                  description: The payer's account number
+                  example: 0123456789
+                source_account_name:
+                  type: string
+                  description: The payer's account name
+                  example: Jill Stones
+                source_bank_name:
+                  type: string
+                  description: The payer's bank name
+                  example: Test Bank
+              required:
+                - account_name
+                - virtual_account_number
+                - transaction_amount
+                - currency
+                - source_account_number
+                - source_account_name
+                - source_bank_name
+      responses:
+        "200":
+          description: |
+            ```     
+                    {
+                      "message": "Payment Notification successful",
+                      "success": false
+                      } 
+                                  
+                ```
+
+  /card_charge:
+    servers:
+      - url: https://cards-live.78financials.com
+        description: Production server
+    post:
+      summary: Card Charge
+      operationId: cardCharge
+      description: |
+        This endpoint is used to initiate Card payments for merchants that use our platform. This document has various request bodies and HTML text that are necessary for different integration purposes. 
+        ### 3DS Authentication HTML
+        This is the 3DS Authentication HTML that will be used for 3DS authentication integration which is necessary for processing of 3DS cards on our platform.
+        ```
+          <body>
+            <div id='threedsChallengeRedirect' xmlns='http://www.w3.org/1999/html' style=' height: 100vh'>
+                <form id='threedsChallengeRedirectForm' method='POST' action=''>
+                    <input type='hidden' name='creq' id="creq" value=''/>
+                </form>
+                <!-- <iframe id='challengeFrame' name='challengeFrame' width='100%' height='100%'></iframe> -->
+            </div>
+
+            <script>
+                const cardNumber = "4187451844054629"; // Card Number
+                const expiryMonth = "07"; // Card Expiry Month
+                const expiryYear = "23"; // Card Expiry Year
+                const securityCode = "100"; // Card Security Code
+
+                
+
+                var myHeaders = new Headers();
+                myHeaders.append("Authorization", "Payaza UFo3OC1QS0xJhsksksMjFFNEYtQ0VCNy00MjAzL4MDktQkU1NEM3NDY1RDRB");
+                myHeaders.append("Content-Type", "application/json");
+
+                
+
+                var raw = JSON.stringify({
+                    "service_payload": {
+                        "first_name": "John", 
+                        "last_name": "Doe",
+                        "email_address": "johndoe@gmail.com",
+                        "phone_number": "01234567890",
+                        "amount": 0.01,
+                        "transaction_reference": "PL-1KBPSCJCRD"+Math.floor((Math.random() * 10000000) + 1),
+                        "currency": "USD",
+                        "description": "Test for 3DS",
+                        "card": {
+                            "expiryMonth": expiryMonth,
+                            "expiryYear": expiryYear,
+                            "securityCode": securityCode,
+                            "cardNumber": cardNumber
+                        },
+                        "callback_url":"https://webhook.site/ed6dd42-dfcf-44a3-8fa7-4cc1ab55e029"             }
+                });
+
+                var requestOptions = {
+                    method: 'POST',
+                    headers: myHeaders,
+                    body: raw,
+                    redirect: 'follow'
+                };
+
+                
+                fetch("https://cards-live.78financials.com/card_charge/", requestOptions).then(response => response.text()).then(result => {
+                    console.log("RAW RESULT: ", result)
+                    result = JSON.parse(result);
+                    if (result.statusOk) { // ///Handle Success Response
+                        if (result.do3dsAuth) {
+                            const creq = document.getElementById("creq");
+                            creq.value = result.formData;
+                            const form = document.getElementById("threedsChallengeRedirectForm");
+                            form.setAttribute("action", result.threeDsUrl);
+                            form.submit();
+                        } else {Í
+                            console.log("Payment Process Journey Completed")
+                        }
+                    } else { // ///Handle Error
+                        console.log("Error found", result.debugMessage)
+                        alert("Payment Failed: " + result.debugMessage)
+                    }
+                }).catch(error => {
+                    console.log("::::::::::Error::::::::::", error)
+                    alert("Exception Error: " + error.debugMessage)
+                });
+
+                // ///////////Internal Payment Notification
+                window.addEventListener("message", (event) => {
+                    console.log("::::::::::::::::::MESSAGE EVENT GOT BACK FROM BACK-END::::::::::::::::::::::")
+                    const response = JSON.parse(event.data);
+                    console.log("Payment Notification", response)
+                    if (response.statusOk === true && response.paymentCompleted === true) { // ////Handle payment successful, do business logic
+                        alert("Payment Successful")
+                    } else { // ///Handle Failed payment
+                        alert("Payment Failed")
+                    }
+                });
+            </script>
+          </body>
+              ```
+        ### RESPONSE PARAMETERS
+          | PARAMETER | SUCCESS STATUS| FAILED STATUS|
+          |-----------|-----------------|------|  
+          | <b>StatusOk</b> | true        | false      |
+          | message| Approved | Transaction Failed <br> a. Value 'P1120QZVCSXASL' is invalid. Order already has an existing successful initial transaction <br> b. Invalid card number <br> c. Transaction not processed, please try again <br> d. A transaction with this transaction ID has already been processed but the request parameters do not match. To process a new transaction for this order, the transaction id must be unique for the order. e.t.c. |
+          | debugMessage | Transaction Successful |  |
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_payload:
+                  type: object
+                  description: It contains the details of the service payload.
+                  properties:
+                    first_name:
+                      type: string
+                      description: The first name of the customer
+                      example: John
+                    last_name:
+                      type: string
+                      description: The last name of the customer
+                      example: Doe
+                    email_address:
+                      type: string
+                      description: The email address of the customer
+                      example: johndoe@gmail.com
+                    phone_number:
+                      type: string
+                      description: The phone number of the customer
+                      example: 0939344404
+                    amount:
+                      type: number
+                      format: double
+                      description: The amount to be charged
+                      example: 0.01
+                    transaction_reference:
+                      type: string
+                      description: The unique identifier given to a particular transaction. (Maximum character length is 15)
+                      example: RuxsXYCEBGHTEFIKKCDTICDEFCX
+                    currency:
+                      type: string
+                      description: Currency code for the transaction. The base currency is USD
+                      example: USD
+                    description:
+                      type: string
+                      description: Description for the payment
+                      example: Test
+                    card:
+                      type: object
+                      description: The details of the card.
+                      properties:
+                        expiryMonth:
+                          type: string
+                          description: The month the card will expire.
+                          example: 10
+                        expiryYear:
+                          type: string
+                          description: The year the card will expire
+                          example: 26
+                        securityCode:
+                          type: string
+                          description: CVV
+                          example: 686
+                        cardNumber:
+                          type: string
+                          description: "4865550017193640"
+                          example: Test
+                    callback_url:
+                      type: string
+                      description: The callback URL provided by the merchant (Kindly ensure this accepts POST request). Callback responses are only sent for 3DS transactions
+                      example: https://webhook.site/ed6dd427-dfcf-44a3-8fa7-4cc1ab55e029
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "3DS":
+                  value:
+                    {
+                      "statusOk": true,
+                      "message": "Authentication Required",
+                      "debugMessage": "3DS Authentication Required",
+                      "descriptor": "",
+                      "waitForNotification": false,
+                      "do3dsAuth": true,
+                      "threeDsUrl": "https://secure-acs2ui-bk2-indmum-mumrdc.wibmo.com/v1/acs/services/browser/creq/L/8642/f701e19d-3508-11ee-b753-67cae4cf81dc",
+                      "formData": "eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjQ5ZGJmNTY4LWRjZjUtNDc1NS05ZjQ2LWU2MjIzMDk3MGU3MyIsImFjc1RyYW5zSUQiOiJmNzAxZTE5ZC0zNTA4LTExZWUtYjc1My02N2NhZTRjZjgxZGMiLCJjaGFsbGVuZ2VXaW5kb3dTaXplIjoiMDUiLCJtZXNzYWdlVHlwZSI6IkNSZXEiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMi4wIn0",
+                      "threeDsHtml": "<div id='threedsChallengeRedirect' xmlns='http://www.w3.org/1999/html' style=' height: 100vh'> <form id ='threedsChallengeRedirectForm' method='POST' action='https: //secure-acs2ui-bk2-indmum-mumrdc.wibmo.com/v1/acs/services/browser/creq/L/8642/f701e19d-3508-11ee-b753-67cae4cf81dc' target='challengeFrame'> <input type='hidden' name='creq' value='eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjQ5ZGJmNTY4LWRjZjUtNDc1NS05ZjQ2LWU2MjIzMDk3MGU3MyIsImFjc1RyYW5zSUQiOiJmNzAxZTE5ZC0zNTA4LTExZWUtYjc1My02N2NhZTRjZjgxZGMiLCJjaGFsbGVuZ2VXaW5kb3dTaXplIjoiMDUiLCJtZXNzYWdlVHlwZSI6IkNSZXEiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMi4wIn0' /> </form> <iframe id='challengeFrame' name='challengeFrame' width='100%' height='100%' ></iframe><script id='authenticate-payer-script'> var e=document.getElementById('threedsChallengeRedirectForm'); if (e) { e.submit(); if (e.parentNode !== null) { e.parentNode.removeChild(e);            }        } </script> </div>",
+                      "paymentCompleted": false,
+                      "amountPaid": 0,
+                      "valueAmount": 0,
+                    }
+                "NON-3DS":
+                  value:
+                    {
+                      "statusOk": true,
+                      "message": "Approved",
+                      "debugMessage": "Transaction Successful",
+                      "description": "Test",
+                      "descriptor": " ",
+                      "waitForNotification": true,
+                      "transactionReference": "1691392810vl12wrko31mt",
+                      "customerReference": "1691392810vl12wrko31mt",
+                      "do3dsAuth": false,
+                      "paymentCompleted": true,
+                      "amountPaid": 0.01,
+                      "valueAmount": 0.0095,
+                    }
+                "Callback URL Response(SUCCESSFUL)":
+                  value:
+                    {
+                      "statusOk": true,
+                      "message": "Approved",
+                      "debugMessage": "Transaction Successful",
+                      "description": "test Transaction",
+                      "waitForNotification": true,
+                      "transactionReference": "SD1689678268",
+                      "customerReference": "SD1689678268",
+                      "do3dsAuth": false,
+                      "paymentCompleted": true,
+                      "amountPaid": 0.5,
+                      "valueAmount": 0.475,
+                    }
+
+                "Callback URL Response(UNSUCCESSFUL)":
+                  value:
+                    {
+                      "statusOk": false,
+                      "message": "Transaction Failed",
+                      "debugMessage": "Do not honour",
+                      "description": "TEST",
+                      "waitForNotification": false,
+                      "transactionReference": "PD1803071",
+                      "do3dsAuth": false,
+                      "paymentCompleted": false,
+                      "amountPaid": 0,
+                      "valueAmount": 0,
+                    }
+        "400":
+          description: Bad Request
+
+  /card_charge/transaction_status:
+    servers:
+      - url: https://cards-live.78financials.com
+        description: Production server
+    post:
+      summary: Check Transaction Status
+      operationId: checkTransactionStatusCard
+      description: |
+        #### This endpoint gets the transaction status corresponding to the provided transaction reference.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_payload:
+                  type: object
+                  description: It contains the details of the service payload.
+                  properties:
+                    transaction_reference:
+                      type: string
+                      description: The unique reference of the transaction
+                      example: A12345
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Response":
+                  value:
+                    {
+                      "response_code": 200,
+                      "response_message": "Transaction data found",
+                      "response_content":
+                        {
+                          "transaction_reference": "A12345",
+                          "transaction_amount": 20,
+                          "transaction_fee": 1,
+                          "transaction_amount_payable": 20,
+                          "transaction_status": "Completed",
+                          "payer_name": "John Doe",
+                          "source_bank_name": "MASTERCARD",
+                          "payment_date": "2023-11-09 16:31:38.896",
+                          "created_at": "2023-11-09 16:31:38.896",
+                          "debug_message": "Payment Approved",
+                        },
+                    }
+
+        "400":
+          description: Bad Request
+
+  /card_charge/refund_status:
+    servers:
+      - url: https://cards-live.78financials.com
+        description: Production server
+    post:
+      summary: Check Refund Status
+      operationId: checkRefundStatusCard
+      description: |
+        #### This endpoint is used to fetch the status of a refunded card payment (transaction).
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_payload:
+                  type: object
+                  description: It contains the details of the service payload.
+                  properties:
+                    refund_transaction_reference:
+                      type: string
+                      description: The unique identifier given to a particular transaction you refunded. This can be found in the response body of the “Card Charge Refund API”
+                      example: RF20231112-Q232USD
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Response":
+                  value:
+                    {
+                      "transactionReference": "T3737157",
+                      "refundReference": "RF20231112-Q232USD",
+                      "refundStatus": "SUCCESS",
+                      "statusReason": "Refund processed successfully",
+                      "refundDate": "2023-11-12T23:30:06.688465",
+                      "refundedAmount": 5.2,
+                      "parentTransactionAmount": 5.2,
+                      "message": "Request Completed",
+                      "statusOk": true,
+                    }
+
+        "400":
+          description: Bad Request
+
+  /api/request/secure/payloadhandler:
+    servers:
+      - url: https://router-live.78financials.com
+        description: Production server
+    post:
+      summary: Get Account Transaction History
+      operationId: getTransactionHistoryCard
+      description: |
+        #### The merchant can use this endpoint to fetch all transactions. The data output can be filtered using the date range.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                service_type:
+                  type: string
+                  description: The type of service
+                  example: Account
+                service_payload:
+                  type: object
+                  description: It contains the details of the service payload.
+                  properties:
+                    request_application:
+                      type: string
+                      description: The application being used to request.
+                      example: Payaza
+                    application_module:
+                      type: string
+                      description: The module of the application
+                      example: USER_MODULE
+                    application_version:
+                      type: string
+                      description: The version of the application”
+                      example: 1.0.0
+                    request_class:
+                      type: string
+                      description: The class of the request
+                      example: GetTransactionHistoryRequest
+                    start_date:
+                      type: number
+                      format: date
+                      description: The start date range to filter data in DD-MM-YYYY format
+                      example: 24-02-2023
+                    end_date:
+                      type: number
+                      format: date
+                      description: The end date range to filter data in DD-MM-YYYY format
+                      example: 17-12-2023
+                    order:
+                      type: string
+                      description: The arrangement order is either ascending or descending. Use “asc” for ascending and “desc” for descending.(The default is ascending)
+                      example: desc
+                    page:
+                      type: number
+                      description: The page number
+                      example: 1
+                  required:
+                    - request_application
+                    - application_module
+                    - application_version
+                    - request_class
+                    - page
+              required:
+                - service_type
+                - service_payload
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Response":
+                  value:
+                    {
+                      "response_code": 200,
+                      "response_message": "Account Transactions returned",
+                      "response_content":
+                        {
+                          "page": 1,
+                          "transaction_count": 10,
+                          "transactions":
+                            [
+                              {
+                                "transaction_reference": "QWE123ASD456L",
+                                "transaction_status": "Completed",
+                                "transaction_amount": 100,
+                                "fee_amount": 0,
+                                "source_account_name": "Mastercard Payment",
+                                "source_account_number": null,
+                                "source_bank_name": "VISA",
+                                "payment_date": "2023-02-24 23:31:42.085",
+                              },
+                              {
+                                "transaction_reference": "PQZVVVzCSXASL",
+                                "transaction_status": "Completed",
+                                "transaction_amount": 1,
+                                "fee_amount": 0,
+                                "source_account_name": "Mastercard Payment",
+                                "source_account_number": null,
+                                "source_bank_name": "VISA",
+                                "payment_date": "2023-02-24 10:08:29.243",
+                              },
+                            ],
+                        },
+                    }
+
+        "400":
+          description: Bad Request
+
+  /card_charge/check_3ds_availability:
+    servers:
+      - url: https://cards-live.78financials.com
+        description: Production server
+    post:
+      summary: Check 3DS Availability
+      operationId: check3DSAvailability
+      description: |
+        #### This API endpoint serves the purpose of verifying whether a card possesses 3D Secure (3DS) capabilities or not.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                card_number:
+                  type: string
+                  description: The number on the code.
+                  example: 4187430019116592
+                currency:
+                  type: string
+                  description: The currency code
+                  example: NGN
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "3DS":
+                  value:
+                    {
+                      "is3dsAvailable": true,
+                      "message": "3DS Authentication Available on Card.",
+                    }
+                "NON-3DS":
+                  value: { "is3dsAvailable": false, "message": "No 3DS." }
+        "400":
+          description: Bad Request
+
+  /live/refund-chargeback/refund/merchant/api/refund:
+    post:
+      summary: Initiate Refund V2
+      operationId: initiateRefundV2
+      description: |
+        #### This endpoint is used to initiate a refund |
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          required: true
+          description: Add the prefix ***Payaza*** with your Base 64 encoded merchant's Public API key
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction_reference:
+                  type: string
+                  description: The unique identifier of the particular transaction you want to refund.
+                  example: 05c358461d13
+                refund_amount:
+                  type: number
+                  format: double
+                  description: The amount to be refunded
+                  example: 20
+                refund_reason:
+                  type: string
+                  description: A brief reason for refund
+              required:
+                - transaction_reference
+                - refund_amount
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Response":
+                  value:
+                    {
+                      "message": "Operation Completed",
+                      "data":
+                        {
+                          "message": "Refund Processed Successfully",
+                          "refund_transaction_reference": "RF20230228-LDUUSD",
+                          "payment_transaction_reference": "APRQWE1001",
+                          "status": "SUCCESS",
+                          "original_transaction_amount": 0.05,
+                          "refunded_amount": 0.05,
+                          "successful": true,
+                        },
+                    }
+
+        "400":
+          description: Bad Request
+
+  /live/refund-chargeback/refund/merchant/api/refund_history:
+    get:
+      summary: Fetch Refund History
+      operationId: fetchRefundhistoryV2
+      description: |
+        #### This endpoint is used to initiate a refund |
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          required: true
+          description: Add the prefix ***Payaza*** with your Base 64 encoded merchant's Public API key
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-10-10
+          required: false
+          description: The start date range to filter data in YYYY-MM-DD format
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-10-10
+          required: false
+          description: The end date range to filter data in YYYY-MM-DD format
+        - name: currency
+          in: query
+          schema:
+            type: string
+            example: USD
+          required: false
+          description: The ISO 4217 alpha-3 currency code. e.g. NGN, USD
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: A brief note on your chargeback action
+        - name: size
+          in: query
+          schema:
+            type: integer
+            example: 10
+          required: true
+          description: Total number of transactions per page.
+        - name: refund_status
+          in: query
+          schema:
+            type: string
+            example: Success
+          required: true
+          description: “Success” or “Initialized”
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Response":
+                  value:
+                    {
+                      "status": "success",
+                      "message": "Refund History Success.",
+                      "data":
+                        {
+                          "content":
+                            [
+                              {
+                                "id": 28824,
+                                "refund_amount": 0.05,
+                                "transaction_amount": 0.05,
+                                "transaction_fee": 0,
+                                "transaction_reference": "RF20230228-PS56JY26JYJ0USD",
+                                "mpgs_refund_type": "REFUNDED",
+                                "mpgs_refund_status": "SUCCESS",
+                                "refund_order_id": "QA-PL-1KBPSCJCRD947",
+                                "refund_transaction_id": "RF20230228-LDUUSD",
+                                "start_at": "2024-08-06 12:44:48.652847",
+                                "end_at": "2024-08-06 12:44:50.408276",
+                                "transaction":
+                                  {
+                                    "id": 20149381,
+                                    "description": "Test for Headers",
+                                    "ended_at": "2024-08-05 12:03:13.777000",
+                                    "fee_amount": 0,
+                                    "rrn": "000812310925",
+                                    "collection_channel": "Card",
+                                    "started_at": "2024-08-05 12:03:13.777000",
+                                    "status_reason": "Payment Approved",
+                                    "transaction_amount": 0.05,
+                                    "transaction_reference": "QA-PL-1KBPSCJCRD947",
+                                    "transaction_status": "Completed",
+                                    "customer":
+                                      {
+                                        "id": 29425269,
+                                        "email_address": "johndoe@gmail.com",
+                                        "first_name": "John",
+                                        "last_name": "Doe",
+                                        "mobile_number": "08123456789",
+                                      },
+                                    "currency":
+                                      {
+                                        "id": 2,
+                                        "name": "US Dollar",
+                                        "code": "USD",
+                                        "html_code": "&#36;",
+                                        "iso_code": "USA",
+                                        "unicode": "$",
+                                        "active": true,
+                                      },
+                                  },
+                                "status_reason": "Refund processed successfully",
+                                "merchant_name": "Integration",
+                              },
+                            ],
+                          "total": 1,
+                          "last": false,
+                          "first": true,
+                          "pageable": { "page": 1, "size": 10 },
+                        },
+                    }
+
+        "400":
+          description: Bad Request
+
+  /live/refund-chargeback/chargeback/merchant/api/accept_reject_chargeback:
+    post:
+      summary: Accept Or Reject Chargeback
+      operationId: acceptOrRejectChargeback
+      description: |
+        #### The merchant can use this endpoint to either accept or decline a chargeback request. |
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          required: true
+          description: Add the prefix ***Payaza*** with your Base 64 encoded merchant's Public API key
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  description: ‟accept″ or ‟decline″
+                  example: accept
+                chargeback_fk:
+                  type: integer
+                  description: The unique identifier of the chargeback. This can be retrieved in the Chargeback request API response.
+                  example: 39
+                comment:
+                  type: string
+                  description: A brief note on your chargeback action
+                  example: Test
+                evidence_url:
+                  type: string
+                  description: A brief note on your chargeback action
+                  example: Test
+              required:
+                - action
+                - chargeback_fk
+                - evidence_url
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Accepted":
+                  value:
+                    {
+                      "status": "success",
+                      "message": "Chargeback accept Success",
+                    }
+
+                "Rejected":
+                  value:
+                    {
+                      "status": "success",
+                      "message": "Chargeback reject Success",
+                    }
+
+        "400":
+          description: Bad Request
+
+  /live/refund-chargeback/chargeback/merchant/api/chargeback_requests:
+    get:
+      summary: Chargeback Request
+      operationId: chargebackRequest
+      description: |
+        #### The merchant can use this endpoint to either accept or decline a chargeback request. |
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          required: true
+          description: Add the prefix ***Payaza*** with your Base 64 encoded merchant's Public API key
+        - name: transaction_reference
+          in: query
+          schema:
+            type: string
+            example: livesard
+          required: false
+          description: The transaction reference
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-10-10
+          required: false
+          description: The start date range to filter data in YYYY-MM-DD format
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-10-10
+          required: false
+          description: The end date range to filter data in YYYY-MM-DD format
+
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: A brief note on your chargeback action
+        - name: size
+          in: query
+          schema:
+            type: integer
+            example: 10
+          required: true
+          description: Total number of transactions per page.
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Response Body":
+                  value:
+                    {
+                      "status": "success",
+                      "message": "Chargeback Request Success",
+                      "data":
+                        {
+                          "content":
+                            [
+                              {
+                                "id": 39,
+                                "rrn": "420812221989",
+                                "transaction_reference": "QA-PL-1KBPSCJCRD60143",
+                                "transaction":
+                                  {
+                                    "id": 94223,
+                                    "description": "Test",
+                                    "ended_at": "2024-07-23 12:32:17.686000",
+                                    "fee_amount": 0,
+                                    "rrn": "420812221989",
+                                    "collection_channel": "Card",
+                                    "started_at": "2024-07-23 12:32:17.686000",
+                                    "status_reason": "Payment Approved",
+                                    "transaction_amount": 10.03,
+                                    "transaction_reference": "QA-PL-1KBPSCJCRD60143",
+                                    "transaction_status": "Completed",
+                                    "customer":
+                                      {
+                                        "id": 97398,
+                                        "email_address": "johndoe@yahoo.com",
+                                        "first_name": "John",
+                                        "last_name": "Doe",
+                                        "mobile_number": "08012345678",
+                                      },
+                                    "currency":
+                                      {
+                                        "id": 2,
+                                        "name": "US Dollar",
+                                        "code": "USD",
+                                        "html_code": "&#36;",
+                                        "iso_code": "USD",
+                                        "unicode": "$",
+                                        "active": true,
+                                      },
+                                  },
+                                "reason_message": "fraudulent transaction",
+                                "approval_code": "51063",
+                                "chargeback_date": "2024-07-26",
+                                "original_amt": "10.03",
+                                "chargeback_status": "Pending",
+                                "date_created": "2024-07-26 21:55:57.130891",
+                                "merchant_display_name": "link",
+                              },
+                              {
+                                "id": 100,
+                                "rrn": "421018257589",
+                                "transaction_reference": "Test17221917900340",
+                                "transaction":
+                                  {
+                                    "id": 94286,
+                                    "description": "Test",
+                                    "ended_at": "2024-07-28 18:36:44.578000",
+                                    "fee_amount": 0,
+                                    "rrn": "421018257589",
+                                    "collection_channel": "Card",
+                                    "started_at": "2024-07-28 18:36:44.578000",
+                                    "status_reason": "Payment Approved",
+                                    "transaction_amount": 0.01,
+                                    "transaction_reference": "Test17221917900340",
+                                    "transaction_status": "Completed",
+                                    "customer":
+                                      {
+                                        "id": 97492,
+                                        "email_address": "johndoe@yahoo.com",
+                                        "first_name": "first",
+                                        "last_name": "test",
+                                        "mobile_number": "09019393910",
+                                      },
+                                    "currency":
+                                      {
+                                        "id": 2,
+                                        "name": "US Dollar",
+                                        "code": "USD",
+                                        "html_code": "&#36;",
+                                        "iso_code": "USD",
+                                        "unicode": "$",
+                                        "active": true,
+                                      },
+                                  },
+                                "reason_message": "stolen card",
+                                "approval_code": "98420",
+                                "chargeback_date": "2024-07-30",
+                                "original_amt": "0.01",
+                                "chargeback_status": "Pending",
+                                "date_created": "2024-07-30 21:55:56.665030",
+                                "merchant_display_name": "link",
+                              },
+                            ],
+                          "total": 2,
+                          "last": true,
+                          "first": true,
+                          "pageable": { "page": 1, "size": 10 },
+                        },
+                    }
+        "400":
+          description: Bad Request
+
+  /live/refund-chargeback/chargeback/merchant/api/chargeback_transaction_history:
+    get:
+      summary: Chargeback Transaction History
+      operationId: chargebackTransactionHistory
+      description: |
+        #### The merchant can use this endpoint to fetch all chargeback transactions. |
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          required: true
+          description: Add the prefix ***Payaza*** with your Base 64 encoded merchant's Public API key
+        - name: transaction_reference
+          in: query
+          schema:
+            type: string
+            example: livesard
+          required: false
+          description: The transaction reference
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-10-10
+          required: false
+          description: The start date range to filter data in YYYY-MM-DD format
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+            example: 2024-10-10
+          required: false
+          description: The end date range to filter data in YYYY-MM-DD format
+
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: 1
+          required: true
+          description: A brief note on your chargeback action
+        - name: size
+          in: query
+          schema:
+            type: integer
+            example: 10
+          required: true
+          description: Total number of transactions per page.
+
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                "Response Body":
+                  value:
+                    {
+                      "status": "success",
+                      "message": "Chargeback History Success",
+                      "data":
+                        {
+                          "content":
+                            [
+                              {
+                                "id": 39,
+                                "rrn": "401012220020",
+                                "transaction_reference": "PL1KBPSCJCRD60143",
+                                "transaction":
+                                  {
+                                    "id": 94223,
+                                    "description": "Test",
+                                    "ended_at": "2024-07-23 12:32:17.686000",
+                                    "fee_amount": 0,
+                                    "rrn": "401012220020",
+                                    "collection_channel": "Card",
+                                    "started_at": "2024-07-23 12:32:17.686000",
+                                    "status_reason": "Payment Approved",
+                                    "transaction_amount": 10.03,
+                                    "transaction_reference": "PL1KBPSCJCRD60143",
+                                    "transaction_status": "Completed",
+                                    "customer":
+                                      {
+                                        "id": 97398,
+                                        "email_address": "johndoe@yahoo.com",
+                                        "first_name": "John",
+                                        "last_name": "Doe",
+                                        "mobile_number": "08012345678",
+                                      },
+                                    "currency":
+                                      {
+                                        "id": 2,
+                                        "name": "US Dollar",
+                                        "code": "USD",
+                                        "html_code": "&#36;",
+                                        "iso_code": "USD",
+                                        "unicode": "$",
+                                        "active": true,
+                                      },
+                                  },
+                                "reason_message": "fraudulent transaction",
+                                "approval_code": "11111",
+                                "chargeback_date": "2024-07-26",
+                                "original_amt": "10.03",
+                                "chargeback_status": "Accepted",
+                                "accepted": true,
+                                "chargeback_status_reason": "fraud",
+                                "evidence_url": "",
+                                "date_created": "2024-07-26 21:55:57.177028",
+                                "merchant_display_name": "link",
+                              },
+                            ],
+                          "total": 1,
+                          "last": true,
+                          "first": true,
+                          "pageable": { "page": 1, "size": 10 },
+                        },
+                    }
+        "400":
+          description: Bad Request
+
+  /live/subsidiary/collections/v1/process-collection:
+    post:
+      summary: Momo Process Collection
+      operationId: momoProcessCollection
+      description: |
+        This endpoint initiates the mobile money collection
+        ```
+         "transaction_webhook": "https://webhook.site/6b18f10d-0516-4458-8808-45bd9f1474bf"
+        ```
+        ***
+        #### Arguments
+        ***amount*** _double_
+        The amount to be paid
+
+        ***customer_number*** _string_
+        The mobile money account number to be charged. Ghana, Uganda, Kenya, Tanzania = ***12 Digits(country code included)***, Sierra Leone = ***11 Digits(country code included)***
+
+        ***transaction_reference*** _string_
+        The unique identifier of the transaction
+
+        ***transaction_description*** _string_
+        Description of the transaction
+
+        ***customer_bankcode*** _string_
+        This is the customer’s mobile money code
+
+        ***currency_codes*** _string_
+        The currency code (GHS, KES, TZS, UGX, SLE)
+
+        ***customer_email*** _string_
+        The email address of the customer
+
+        ***customer_first_name*** _string_
+        The first name of the customer
+
+        ***customer_last_name*** _string_
+        The last name of the customer
+
+        ***customer_phone_number*** _string_
+        The phone number of the customer
+
+        ***country_code*** _string_
+        The ISO Country Code. (ISO 3166-1 alpha-2) ***(GH-Ghana, TZ-Tanzania, UG- Uganda, KE- Kenya, SL- Sierra Leone***
+
+        ***
+        #### Authorization Header Values
+        ***Authorization*** _string_
+        Payaza Base 64 encoded merchant's Public API key
+
+        ***X-TenantID*** _test_
+        Connection mode: “live” or “test”
+
+        ***X-ProductID*** _app_
+        “app”
+
+        ***
+
+        ##### POST
+        ```
+         {
+          "authorization": Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC,
+          "X-TenantID":  test,
+          "X-ProductID" app
+          }
+        ```
+
+        ***
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            description: Payaza Base 64 encoded merchant's Public API key
+            example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+        - name: X-TenantID
+          in: header
+          required: true
+          schema:
+            type: string
+            description: "Connection mode: “live” or “test”"
+        - name: X-ProductID
+          in: header
+          required: true
+          schema:
+            type: string
+            description: Provide the value "app"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/Momo"
+                - $ref: "#/components/schemas/XOF_Momo"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/responseForMomoProcessCollection"
+              examples:
+                "Momo Process Collection":
+                  value:
+                    "response_code": "09"
+                    "response_message": "PENDING"
+                    "transaction_reference": "UDH012345"
+                    "redirect_customer_to_url_processing": false
+
+                "XOF Momo OTP Required":
+                  value: 
+                    response_code: "09"
+                    response_message: "PENDING"
+                    requires_otp: true
+                    otp_length: 4
+                    before_payment_instruction: "1/ Générer un code provisoire en ouvrant l'application Orange Money Afrique et en sélectionnant \\\"Mon Compte\\\", ou en composant le #144*82# et en effectuant l'appel.\\r\\n---\\r\\n2/ Entrez votre code secret et confirmez.\\r\\n---\\r\\n3/Copiez le code que vous avez reçu par SMS et collez-le dans le champ prévu à cet effet"
+                    after_payment_instruction: Merci de confirmer le paiement en suivant les directives fournies dans le SMS que vous avez reçu.
+                    payment_token: cda6596-c7ec-4adb-8030-b8725dbfc66c
+                    payee: "+2251114462945"
+                    transaction_channel: MOMCIV
+                    transaction_reference: MOCIV0009383
+
+                "XOF Momo No OTP Required":
+                    value:
+                      "response_code": "09"
+                      "response_message": "PENDING"
+                      "requires_otp": false
+                      "otp_length": 0
+                      "before_payment_instruction": "Assurez-vous de disposer de fonds suffisants sur votre compte mobile money pour réaliser ce paiement."
+                      "after_payment_instruction": "Merci de confirmer le paiement en suivant les directives fournies dans le SMS que vous avez reçu."
+                      "payment_token": "e20467b2-d53d-484e-8fd5-a57fcb428d33"
+                      "payee": "+2250004768076"
+                      "payment_method": "MTN_CI"
+                      "transaction_channel": "MOMCIV"
+                      "transaction_reference": "MOCIV0009384"
+
+                "XOF Momo Wave Response":
+                  value: 
+                    "response_code": "09"
+                    "response_message": "PENDING"
+                    "requires_otp": false,
+                    "otp_length": 0,
+                    "before_payment_instruction": ""
+                    "after_payment_instruction": ""
+                    "payment_token": "173174372334060"
+                    "payee": "+2250714462945"
+                    "payment_method": "WAVE"
+                    "transaction_channel": "WAVCIV"
+                    "transaction_reference": "P-C-1731743722009yyyro83vy"
+                    "redirect_customer_to_url_processing": true,
+                    "payment_completion_url": "https://pay.wave.com/c/cos-1svjjcvpg20j0?a=500&c=XOF&m=PAYAZA%20%2A%20Bizao"
+                    "redirect_url": "{{redirecturl}}"
+
+                
+        "400":
+          description: Bad Request
+
+  /live/subsidiary/collections/v1/check-status:
+    get:
+      summary: Transaction Status Query (TSQ) - (Momo/XOF Momo Process Collection)
+      operationId: transactionStatusQueryMomo
+      description: |
+        This endpoint gets a mobile money transaction status corresponding to the provided transaction reference.
+        ***
+
+        #### Arguments
+        ***transaction_reference*** _string_
+        The unique identifier of the transaction
+
+        ***country_code*** _date_
+        The ISO Country Code. (ISO 3166-1 alpha-2) (GH-Ghana, TZ-Tanzania, UG - Uganda, KE-Kenya)
+
+        ***
+
+        #### Authorization Header Values
+        ***Authorization*** _string_
+        Payaza Base 64 encoded merchant's Public API key
+
+        ***X-TenantID*** _test_
+        Connection mode: “live” or “test”
+
+        ***X-ProductID*** _app_
+        Provide the value “app”
+
+        ***
+        ##### POST
+        ```
+         {
+          "authorization": Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC,
+         }
+        ```
+
+        ***
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          schema:
+            type: string
+            example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTBNzdC
+        - name: X-TenantID
+          in: header
+          required: true
+          schema:
+            type: string
+            example: test
+        - name: X-ProductID
+          in: header
+          required: true
+          schema:
+            type: string
+            example: app
+        - name: transaction_reference
+          in: query
+          required: true
+          schema:
+            type: string
+            example: UDH012345
+        - name: country_code
+          in: query
+          required: true
+          schema:
+            type: string
+            example: KE
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/responseForMomoProcessCollectionTSQ"
+              examples:
+                "Before Payment MoMo":
+                  value:
+                    "response_code": "09"
+                    "transaction_reference": "UDH012345"
+                    "transaction_amount": 200.27
+                    "transaction_fee": 0
+                    "transaction_status": "Initialized"
+                    "payer_name": "Robert Stones"
+                    "payer_account_number": "233123456789"
+                    "start_date": "2024-05-21T20:14:01.254748"
+                    "end_date": "null"
+                    "currency": "GHS"
+
+                "After Payment MoMo":
+                  value:
+                    "response_code": "00"
+                    "transaction_reference": "UDH012345"
+                    "transaction_amount": 200.27
+                    "transaction_fee": 0
+                    "transaction_status": "Completed"
+                    "payer_name": "Robert Stones"
+                    "payer_account_number": "233123456789"
+                    "start_date": "2024-05-21T20:14:01.254748"
+                    "end_date": "2024-05-21T20:14:29.889059"
+                    "currency": "GHS"
+
+                "Before Payment XOF Momo":
+                  value:
+                    "response_code": "09"
+                    "transaction_reference": "MOCIV0009384"
+                    "transaction_amount": 350
+                    "transaction_fee": 0
+                    "transaction_status": "Initialized"
+                    "payer_name": ""
+                    "payer_account_number": ""
+                    "start_date": "2024-07-31T09:36:19.497991"
+                    "end_date": "null"
+                    "currency": "XOF"
+
+                "After Payment XOF Momo":
+                  value:
+                    "response_code": "09"
+                    "transaction_reference": "MOCIV0009384"
+                    "transaction_amount": 350
+                    "transaction_fee": 0
+                    "transaction_status": "Completed"
+                    "payer_name": ""
+                    "payer_account_number": ""
+                    "start_date": "2024-07-31T09:36:19.497991"
+                    "end_date": "2024-07-31T09:53:14.387987"
+                    "currency": "XOF"
+        "400":
+         description: Bad Request
+
+  /live/subsidiary/funding/v1/process-collection:
+    post:
+      summary: Test Account Funding (Momo Collection)
+      operationId: testAccountFundingMomo
+      description: |
+        This endpoint funds the test accounts. Please note that this API is just for Test
+        ***
+        #### Arguments
+        ***transaction_reference*** _string_
+        The unique identifier of the transaction
+
+        ***country_code*** _string_
+        The ISO Country Code. (ISO 3166-1 alpha-2) (GH-Ghana, TZ-Tanzania, UG - Uganda, KE-Kenya)
+        ***
+
+        #### Authorization Header Values
+        ***Authorization*** _string_
+        Payaza Base 64 encoded merchant's API key
+
+        ***X-TenantID*** _string_
+        Connection mode: “live” or “test”
+
+        ***X-ProductID*** _app_
+        “app”
+
+        ***
+
+        ```
+          {
+            "authorization": Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC,
+            "X-TenantID": test,
+            "X-ProductID": app
+          }
+
+        ```
+
+        ***
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          schema:
+            type: string
+            example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTBNzdC
+        - name: X-TenantID
+          in: header
+          required: true
+          description: "Connection mode: “live” or “test”"
+          schema:
+            type: string
+            example: test
+        - name: X-ProductID
+          in: header
+          required: true
+          description: Provide the value "app"
+          schema:
+            type: string
+            example: app
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction_reference:
+                  type: string
+                  example: UDH0123453
+                country_code:
+                  type: string
+                  example: KES
+              required: 
+                -  transaction_reference
+                - country_code
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response_code:
+                    type: string
+                    example: "00"
+                  response_message:
+                    type: string
+                    example: Account Successfully Funded
+        "400":
+          description: Bad Request
+
+  /live/subsidiary/collections/v1/process-otp:
+    post:
+      summary: XOF Process OTP
+      operationId: xofProcessOTP
+      description: This endpoint processes the One Time Password.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          schema:
+            type: string
+            example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTBNzdC
+        - name: X-TenantID
+          in: header
+          required: true
+          description: "Connection mode: “live” or “test”"
+          schema:
+            type: string
+            example: test
+        - name: X-ProductID
+          in: header
+          required: true
+          description: Provide the value "app"
+          schema:
+            type: string
+            example: app
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_token:
+                  type: string
+                  example: 45c3d124-7831-4f97-8844-581bf497a20b"
+                otp_code:
+                  type: string
+                  example: "4567"
+                payee:
+                  type: string
+                  example: "+2251114462945"
+                payment_method:
+                  type: string
+                  example: ORANGE_CI
+                transaction_reference:
+                  type: string
+                  example: MOCIV0009383
+                transaction_channel:
+                  type: string
+                  example: CI
+              required: 
+                - payment_token
+                - otp_code
+                - payee
+                - payment_method
+                - transaction_reference
+                - transaction_channel
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response_code:
+                    type: string
+                    example: "00"
+                  response_message:
+                    type: string
+                    example: SUCCESS
+                  requires_otp:
+                    type: string
+                    example: false
+                  otp_length:
+                    type: number
+                    example: 0
+        "400":
+          description: Bad Request         
+
+  /subsidiary/collections/v1/check-status:
+    get:
+      summary: Transaction Status Query XOF Momo
+      description: This endpoint gets a mobile money transaction status corresponding to the provided transaction reference.
+
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          schema:
+            type: string
+            example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+        - name: X-TenantID
+          in: header
+          required: true
+          description: 'Connection mode: “live” or “test”'
+          schema:
+            type: string
+            example: test
+        - name: X-ProductID
+          in: header
+          required: true
+          description: Provide value app
+          schema: 
+            type: string
+            example: app
+        - name: transaction_reference
+          in: query
+          required: true
+          description: The unique identifier of the transaction
+          schema:
+            type: string
+            example: MOCIV0009383
+        - name: country_code
+          in: query
+          required: true
+          description: The ISO Country Code. (ISO 3166-1 alpha-2)
+          schema:
+            type: string
+            example: CI
+
+  /live/merchant-collection/transfer_notification_controller/merchant/transaction-query:
+    get:
+      summary: Check Transaction Status (Merchant Reference)
+      operationId: checkTransactionStatusMerchantRef
+      description: This endpoint is used to check the transaction status of a transaction using the Merchant Reference.
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: Payaza Base 64 encoded merchant's Public API key
+          schema:
+            type: string
+            example: Payaza UFo3OC1QS0xJVkUtRjMwODcwNUMtRkY2NC00MEJCLTg1OUUtM0ZCQUI4MTJBNzdC
+        - name: X-TenantID
+          in: header
+          required: true
+          description: 'Connection mode: “live” or “test”'
+          schema:
+            type: string
+            example: test
+        - name: merchant_reference
+          in: query
+          required: true
+          description: The reference generated to the transaction that is placed in the Checkout or Payment page request
+          schema:
+            type: string
+            example: laxpre
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Transaction data found
+                  data:
+                    type: object
+                    properties:
+                      transaction_reference:
+                        type: string
+                        example: null
+                      amount_received:
+                        type: number
+                        format: double
+                        example: 20.28
+                      transaction_fee:
+                        type: number
+                        format: double
+                        example: 0.28
+                      transaction_status:
+                        type: string
+                        example: Completed
+                      sender_name:
+                        type: string
+                        example: Ray Phil
+                      sender_account_number:
+                        type: string
+                        example: null
+                      source_bank_name:
+                        type: string
+                        example: MASTERCARD
+                      initiated_date:
+                        type: string
+                        format: date
+                        example: 023-02-11 09:49:09.254
+                      current_status_date:
+                        type: string
+                        format: date
+                        example: 023-02-11 09:49:09.254
+                      currency:
+                        type: string
+                        example: NGN
+                      session_id:
+                        type: string
+                        example: "419309171231"
+                      merchant_transaction_reference:
+                        type: string
+                        example: 3bf267326
+                      transaction_type:
+                        type: string
+                        example: card
+                      virtual_account_number:
+                        type: string
+                        example: null
+                      status_reason:
+                        type: string
+                        example: Payment Approved
+                  success: 
+                    type: boolean
+                    example: true
+        "400":
+          description: Bad Request
+
+
+          
+
+
+components:
+  schemas:
+    responseForMomoProcessCollectionTSQ:
+      type: object
+      properties:
+        response_code:
+          type: string
+        transaction_reference:
+          type: string
+        transaction_amount:
+          type: number
+          format: double
+        transaction_fee:
+          type: number
+          format: double
+        transaction_status:
+          type: string
+        payer_name:
+          type: string
+        payer_account_number:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        currency:
+          type: string
+
+    "Momo":
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 200.27
+        customer_number:
+          type: string
+          example: "233123456789"
+        transaction_reference:
+          type: string
+          example: UDHJQ012340
+        transaction_description:
+          type: string
+          example: Test Payment
+        customer_bank_code:
+          type: string
+          example: SAFKEN
+        currency_code:
+          type: string
+          example: KES
+        customer_email:
+          type: string
+          example: bigmaitre@blondmail.com
+        customer_first_name:
+          type: string
+          example: Robert
+        customer_last_name:
+          type: string
+          example: Stones
+        customer_phone_number:
+          type: string
+          example: "012345678901"
+        country_code:
+          type: string
+          example: "KE"
+        transaction_webhook:
+          type: string
+          example: https://webhook.site/6b18f10d-0516-4458-8808-45bd9f1474bf
+      required: 
+        -  amount
+        - customer_number
+        - transaction_reference
+        - transaction_description
+        - customer_bank_code
+        - currency_code
+        - customer_email
+        - customer_first_name
+        - customer_last_name
+        - customer_phone_number
+        - country_code
+        - transaction_webhook
+
+    "XOF_Momo":
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          example: 200.27
+        customer_number:
+          type: string
+          example: "233123456789"
+        transaction_reference:
+          type: string
+          example: UDHJQ012340
+        transaction_description:
+          type: string
+          example: Test Payment
+        customer_bank_code:
+          type: string
+          example: SAFKEN
+        currency_code:
+          type: string
+          example: KES
+        customer_email:
+          type: string
+          example: bigmaitre@blondmail.com
+        customer_first_name:
+          type: string
+          example: Robert
+        customer_last_name:
+          type: string
+          example: Stones
+        customer_phone_number:
+          type: string
+          example: "012345678901"
+        country_code:
+          type: string
+          example: "KE"
+        redirect_url:
+          type: string
+          example: <redirect url>
+      required: 
+        -  amount
+        - customer_number
+        - transaction_reference
+        - transaction_description
+        - customer_bank_code
+        - currency_code
+        - customer_email
+        - customer_first_name
+        - customer_last_name
+        - customer_phone_number
+        - country_code
+        - redirect_url
+
+    responseForMomoProcessCollection:
+      type: object
+      properties:
+        response_code:
+          type: string
+          example: "09"
+        response_message:
+          type: string
+          example: PENDING
+        transaction_reference:
+          type: string
+          example: UDH012345
+        redirect_customer_to_url_processing:
+          type: boolean
+          example: false
+
+    responseForInitiateTransfer:
+      type: object
+      properties:
+        response_code:
+          type: integer
+          example: 200
+        response_message:
+          type: string
+          example: Request successfully submitted
+        response_content:
+          type: object
+          properties:
+            transaction_status:
+              type: string
+              example: "09"
+            narration:
+              type: string
+              example: Payout
+            transaction_time:
+              type: string
+              example: 2023-10-19T14:37:35.517809
+            amount:
+              type: number
+              example: 100
+            response_status:
+              type: string
+              example: TRANSACTION_INITIATED
+            response_description:
+              type: string
+              example: Transaction has been successfully submitted for processing
+        resp_code:
+          type: string
+          example: "09"
+
+    requestForInitiateTransfer:
+      type: object
+      properties:
+        transaction_type:
+          type: string
+          example: nuban
+          description: |
+            The type of account being transferred to.(Default is NGN)  
+            ***NGN == nuban***  
+            ***GHS == mobile_money or ghipps***  
+            ***UGX == mobile_money***  
+            ***TZS == mobile_money***  
+            ***KES == mobile_money” or kepss***
+        service_payload:
+          description: "It contains the details of the service payload"
+          type: object
+          properties:
+            payout_amount:
+              type: number
+              format: double
+              example: 100
+              description: "The amount of the transaction"
+            transaction_pin:
+              type: integer
+              example: 1111
+              description: "This is the merchant's unique transaction pin"
+            account_reference:
+              type: string
+              example: "1010000009"
+              description: "The reference of the Payaza account. Please be advised that your Payaza Account possesses unique account references corresponding to each currency utilized.(This is available in the “View Payaza Account Details” API response body)"
+            currency:
+              type: string
+              example: NGN
+              description: "The transfer currency code.e.g. NGN, GHS, TZS, UGX, KES"
+            country:
+              type: string
+              example: NGA
+              description: The ISO 3166-1 alpha-3 country code e.g. BEN,CIV. This is required for XOF payouts
+            payout_beneficiaries:
+              description: Contains the details of the payout beneficiaries
+              type: array
+              items:
+                type: object
+                properties:
+                  credit_amount:
+                    type: number
+                    format: double
+                    example: 100
+                    description: The amount to be credited to this particular beneficiary
+                  account_number:
+                    type: string
+                    example: "9207067319"
+                    description: |
+                      This is the account number of the beneficiary
+                      For “nuban” transfer == 10 digits
+                      For “kepss” transfer == 10 digits
+                      For “mobile_money” == 12digits (starting with the 3-digit country code) e,g.
+                      Ghana = 233xxxxxxxxx,
+                      Kenya = 254xxxxxxxxx
+                      Uganda = 256xxxxxxxxx
+                      Tanzania = 255xxxxxxxxx, etc.
+                  account_name:
+                    type: string
+                    example: John Doe
+                    description: This is the name of the beneficiary for the transfer
+                  bank_code:
+                    type: string
+                    example: "000013"
+                    description: This is the beneficiary's bank code
+                  narration:
+                    type: string
+                    example: Test
+                    description: Narration for the payout (This must be 25 characters or less with no special characters)
+                  transaction_reference:
+                    type: string
+                    example: "TD93001234"
+                    description: This is the unique identifier generated for each transaction by the merchant
+                  sender:
+                    type: object
+                    description: Contains the details of the sender
+                    properties:
+                      sender_name:
+                        type: string
+                        example: Jane Doe
+                        description: The name of the sender
+                      sender_id:
+                        type: string
+                        example: ""
+                        description: The unique identifier of the sender
+                      sender_phone_number:
+                        type: string
+                        example: "01234595"
+                        description: Phone number of the sender
+                      sender_address:
+                        type: string
+                        example: 123, Ace Street
+                        description: The address of the sender
+                    required:
+                      - sender_name
+                      - sender_phone_number
+                      - sender_address
+
+                required:
+                  - credit_amount
+                  - account_number
+                  - account_name
+                  - bank_code
+                  - transaction_reference
+
+          required:
+            - payout_amount
+            - transaction_pin
+            - account_reference
+            - currency
+            - payout_beneficiaries
+      required:
+        - transaction_type
+        - service_payload
+
+    requestForAccountNameEnquiry:
+      type: object
+      properties:
+        service_payload:
+          description: "It contains the details of the service payload"
+          type: object
+          properties:
+            currency:
+              type: string
+              example: NGN
+              description: "The currency code."
+            bank_code:
+              type: string
+              example: "100001"
+              description: "The bank code"
+            account_number:
+              type: string
+              example: "1234567890"
+              description: "This is the account number"
+
+    requestForCreateASubaccount:
+      type: object
+      properties:
+        mainAccountPayazaReference:
+          type: string
+          example: "10000000"
+          description: "The Reference of the main Payaza Account."
+        name:
+          type: string
+          example: "Test Sub Account"
+          description: "The name of this subaccount"
+        currency:
+          type: string
+          example: "NGN"
+          description: "The Currency Code"
+
+    responseForAccountNameEnquiry:
+      type: object
+      properties:
+        response_code:
+          type: integer
+          example: 200
+        response_message:
+          type: string
+          example: Approved or completely successful
+        response_content:
+          type: object
+          properties:
+            account_number:
+              type: string
+              example: "0190878999"
+            bank_code:
+              type: string
+              example: 203012
+            account_name:
+              type: string
+              example: "Olaolu Adejide"
+            account_status:
+              type: string
+              example: "ACTIVE"
+            transaction_reference:
+              type: number
+              example: 9
+            response_description:
+              type: string
+              example: Transaction has been successfully submitted for processing
+        response_content_class:
+          type: string
+          example: "com.fin78.app.payload.response.enquiry.account.AccountNameEnquiryInfoResponse"
+
+    # requestForTsq:
+    #   properties:
+    #     transaction_reference:
+    #       type: string
+    #       example: NGN
+    #       description: "The unique identifier given to a particular transaction"
+    #     bank_code:
+    #       type: string
+    #       example: 1343
+    #       description: "The bank code"
+    #     account_number:
+    #       type: string
+    #       example: 1234567890
+    #       description: "This is the account number"
+
+    responseForTsq:
+      type: object
+      properties:
+        response_code:
+          type: integer
+          example: 200
+        response_message:
+          type: string
+          example: Approved or completely successful
+        response_content:
+          type: object
+          properties:
+            account_number:
+              type: string
+              example: "0190878999"
+            bank_code:
+              type: string
+              example: 203012
+            account_name:
+              type: string
+              example: "Olaolu Adejide"
+            account_status:
+              type: string
+              example: "ACTIVE"
+            transaction_reference:
+              type: number
+              example: 3100
+            response_description:
+              type: string
+              example: Transaction has been successfully submitted for processing
+        response_content_class:
+          type: string
+          example: "com.fin78.app.payload.response.enquiry.account.AccountNameEnquiryInfoResponse"
+  securitySchemes:
+    ApikeyAuth:
+      type: apiKey
+      in: headers
+      name: Authorization
+      description: API Key for authorization
+      x-variable: Payaza UFo3OC1QS1RFU1QtNTI0RTY0MTgtNDk4Mi00QURCLUE5ODAtQzIzQzAyQTU2MTdC
