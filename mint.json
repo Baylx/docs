@@ -2,8 +2,8 @@
     "$schema": "https://mintlify.com/schema.json",
     "name": "Fat Kit",
     "logo": {
-        "dark": "/logo/dark.svg",
-        "light": "/logo/light.svg"
+        "dark": "/logo/Logoicon2.svg",
+        "light": "/logo/Logoicon2.svg"
     },
     "favicon": "/favicon.svg",
     "colors": {
