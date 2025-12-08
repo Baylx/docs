@@ -1,0 +1,351 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Fat Kit Payments API",
+    "version": "1.0.0",
+    "description": "API reference for processing payments using Card, Bank Transfer, USSD, and QR Code methods."
+  },
+  "servers": [
+    {
+      "url": "https://api.payaza.africa/live"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Momo Collections",
+      "description": "APIs for MoMo, ZAR and XOF collections."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Payaza {{Public API Key in Base 64}}"
+      },
+      "TenantID": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-TenantID",
+        "description": "live or test"
+      },
+      "ProductID": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-ProductID",
+        "description": "default value is ‟app” "
+      }
+    },
+    "schemas": {
+      "MomoProcessRequest": {
+        "title": "MoMo Request",
+        "type": "object",
+        "properties": {
+          "amount": { "type": "number" },
+          "customer_number": { "type": "string" },
+          "transaction_reference": { "type": "string" },
+          "transaction_description": { "type": "string" },
+          "customer_bank_code": { "type": "string" },
+          "currency_code": { "type": "string" },
+          "customer_email": { "type": "string" },
+          "customer_first_name": { "type": "string" },
+          "customer_last_name": { "type": "string" },
+          "customer_phone_number": { "type": "string" },
+          "country_code": { "type": "string" }
+        }
+      },
+      "ZarProcessRequest": {
+        "title": "ZAR Request",
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "The amount to be paid"
+          },
+          "transaction_reference": {
+            "type": "string",
+            "description": "The unique identifier of the transaction"
+          },
+          "transaction_description": {
+            "type": "string",
+            "description": "Description of the transaction"
+          },
+          "customer_bank_code": {
+            "type": "string",
+            "description": "This is the bank code for ZAR collections. “EFTZAR”"
+          },
+          "currency_code": {
+            "type": "string",
+            "description": "the currency code ZAR"
+          },
+          "customer_email": {
+            "type": "string",
+            "description": "The email address of the customer"
+          },
+          "customer_first_name": {
+            "type": "string",
+            "description": "The first name of the customer"
+          },
+          "customer_last_name": {
+            "type": "string",
+            "description": "The last name of the customer"
+          },
+          "redirect_url": {
+            "type": "string",
+            "description": "The URL that the user is redirected to when a payment is successful"
+          },
+          "cancel_url": {
+            "type": "string",
+            "description": "The URL that the user is redirected to when a payment is cancelled"
+          },
+          "error_url": {
+            "type": "string",
+            "description": "The URL that the user is redirected to when a payment gets failed."
+          },
+          "customer_phone_number": {
+            "type": "string",
+            "description": "The phone number of the customer"
+          },
+          "country_code": {
+            "type": "string",
+            "description": "The ISO Country Code. (ISO 3166-1 alpha-2) (ZA)"
+          }
+        }
+      },
+      "MomoProcessResponse": {
+        "title": "MoMo Response Schema",
+        "type": "object",
+        "properties": {
+          "response_code": { "type": "string" },
+          "response_message": { "type": "string" },
+          "transaction_reference": { "type": "string" },
+          "redirect_customer_to_url_processing": { "type": "boolean" }
+        }
+      },
+      "ZarProcessResponse": {
+        "title": "ZAR Response Schema",
+        "type": "object",
+        "properties": {
+          "response_code": { "type": "string" },
+          "response_message": { "type": "string" },
+          "before_payment_instruction": { "type": "string" },
+          "after_payment_instruction": { "type": "string" },
+          "payment_token": { "type": "string" },
+          "payee": { "type": "string" },
+          "payment_method": { "type": "string" },
+          "transaction_channel": { "type": "string" },
+          "transaction_reference": { "type": "string" },
+          "redirect_customer_to_url_processing": { "type": "boolean" },
+          "payment_completion_url": { "type": "string" }
+        }
+      },
+      "TransactionStatusResponse": {
+        "title": "Transaction Status Response",
+        "type": "object",
+        "properties": {
+          "response_code": { "type": "string" },
+          "transaction_reference": { "type": "string" },
+          "transaction_amount": { "type": "string" },
+          "transaction_fee": { "type": "string" },
+          "transaction_status": { "type": "string" },
+          "payer_name": { "type": "string" },
+          "payer_account_number": { "type": "string" },
+          "start_date": { "type": "string" },
+          "end_date": { "type": "string" },
+          "currency": { "type": "string" }
+        }
+      }
+    }
+  },
+  "security": [{ "ApiKeyAuth": [] }, { "TenantID": [] }, { "ProductID": [] }],
+  "paths": {
+    "/subsidiary/collections/v1/process-collection": {
+      "post": {
+        "tags": ["Momo Collections"],
+        "summary": "Process Collection (MoMo or ZAR)",
+        "description": "This endpoint initiates a collection. Use the dropdown in the Request/Response examples to switch between MoMo and ZAR formats.",
+        "security": [
+          {
+            "ApiKeyAuth": ["Payaza {{Public API Key In Base64}}"],
+            "TenantID": ["test or live"],
+            "ProductID": ["app"]
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  { "$ref": "#/components/schemas/MomoProcessRequest" },
+                  { "$ref": "#/components/schemas/ZarProcessRequest" }
+                ]
+              },
+              "examples": {
+                "momo": {
+                  "summary": "MoMo Collection",
+                  "value": {
+                    "amount": 123,
+                    "customer_number": "254789321923",
+                    "transaction_reference": "AXABASCDERSA",
+                    "transaction_description": "Bills Payment",
+                    "customer_bank_code": "SAFKEN",
+                    "currency_code": "GHS",
+                    "customer_email": "johndoe@email.com",
+                    "customer_first_name": "John",
+                    "customer_last_name": "Doe",
+                    "customer_phone_number": "254789321923",
+                    "country_code": "KE"
+                  }
+                },
+                "zar": {
+                  "summary": "ZAR Collection",
+                  "value": {
+                    "amount": 100,
+                    "transaction_reference": "tran2232",
+                    "transaction_description": "Test Payment",
+                    "customer_bank_code": "EFTZAR",
+                    "currency_code": "ZAR",
+                    "customer_email": "johndoe@gmail.com",
+                    "customer_first_name": "John",
+                    "customer_last_name": "Doe",
+                    "redirect_url": "https://redirecturl.com",
+                    "cancel_url": "https://cancelurl.com",
+                    "error_url": "https://errorurl.com",
+                    "customer_phone_number": "27113785456",
+                    "country_code": "ZA"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Collection initiated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    { "$ref": "#/components/schemas/MomoProcessResponse" },
+                    { "$ref": "#/components/schemas/ZarProcessResponse" }
+                  ]
+                },
+                "examples": {
+                  "momo_resp": {
+                    "summary": "MoMo Response",
+                    "value": {
+                      "response_code": "09",
+                      "response_message": "PENDING",
+                      "transaction_reference": "UDH012345",
+                      "redirect_customer_to_url_processing": false
+                    }
+                  },
+                  "zar_resp": {
+                    "summary": "ZAR Response",
+                    "value": {
+                      "response_code": "09",
+                      "response_message": "PENDING",
+                      "before_payment_instruction": "",
+                      "after_payment_instruction": "",
+                      "payment_token": "175084951464066",
+                      "payee": "",
+                      "payment_method": "EFTZAR",
+                      "transaction_channel": "EFTZAR",
+                      "transaction_reference": "tran2232",
+                      "redirect_customer_to_url_processing": true,
+                      "payment_completion_url": "https://zar-checkout.payaza.africa/pay/hosted?payment_key=35f558e534a4800a099485a43f8279d6&payment_type=eft"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid request" }
+        }
+      }
+    },
+    "/subsidiary/collections/v1/check-status": {
+      "get": {
+        "tags": ["Momo Collections"],
+        "summary": "Transaction Status Query",
+        "description": "This endpoint gets a mobile money transaction status corresponding to the provided transaction reference.",
+        "security": [
+          {
+            "ApiKeyAuth": ["Payaza {{Public API Key In Base64}}"],
+            "TenantID": ["test or live"],
+            "ProductID": ["app"]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transaction_reference",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier for the transaction (e.g., Taxvexamde)."
+          },
+          {
+            "name": "country_code",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "TZ"
+            },
+            "description": "ISO2 country code of the transaction (e.g., TZ for Tanzania)."
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Payment successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionStatusResponse"
+                },
+                "examples": {
+                  "Before Payment": {
+                    "summary": "TSQ Response",
+                    "value": {
+                      "response_code": "09",
+                      "transaction_reference": "UDH012345",
+                      "transaction_amount": 200.27,
+                      "transaction_fee": 0,
+                      "transaction_status": "Initialized",
+                      "payer_name": "Robert Stones",
+                      "payer_account_number": "233123456789",
+                      "start_date": "2024-05-21T20:14:01.254748",
+                      "end_date": "null",
+                      "currency": "GHS"
+                    }
+                  },
+                  "After Payment": {
+                    "summary": "TSQ Response",
+                    "value": {
+                      "response_code": "00",
+                      "transaction_reference": "UDH012345",
+                      "transaction_amount": 200.27,
+                      "transaction_fee": 0,
+                      "transaction_status": "Completed",
+                      "payer_name": "Robert Stones",
+                      "payer_account_number": "233123456789",
+                      "start_date": "2024-05-21T20:14:01.254748",
+                      "end_date": "2024-05-21T20:14:29.889059",
+                      "currency": "GHS"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Payment failed" }
+        }
+      }
+    }
+  }
+}
