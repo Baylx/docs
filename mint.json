@@ -1,4 +1,3 @@
-
 {
     "$schema": "https://mintlify.com/schema.json",
     "name": "Fat Kit",
@@ -19,7 +18,7 @@
             "light": "#FAFAFA",
             "dark": "#2C2C2C"
         }
-    }
+    },
     "topbarLinks": [
         {
             "name": "Support",
@@ -34,7 +33,7 @@
         {
             "name": "API Reference",
             "url": "api-reference",
-            "openapi": "/openapi.json"
+          "openapi": "/openapi.json"
         }
     ],
     "anchors": [
@@ -95,3 +94,4 @@
         "linkedin": "https://www.linkedin.com/company/mintsearch"
     }
 }
+
