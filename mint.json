@@ -19,13 +19,7 @@
             "light": "#FAFAFA",
             "dark": "#2C2C2C"
         }
-    },
-    "theme": {
-        "font": {
-            "headings": "Poppins",
-            "body": "Inter"
-        }
-    },
+    }
     "topbarLinks": [
         {
             "name": "Support",
