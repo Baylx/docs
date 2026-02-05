@@ -25,8 +25,20 @@
     },
 
     {
-      "name": "EUR Transfers",
+      "name": "EUR Accounts",
       "description": "This endpoints enable you to create EUR subaccounts which can be used to make transfers as required ."
+    },
+    {
+      "name": "Apple Pay and Google Pay",
+      "description": "Apple Pay and Google Pay give your customers a fast, familiar, and secure way to complete payments. Our APIs provide a gateway to provide these services to your users for a smooth payment experience."
+    },
+    {
+      "name": "Virtual Accounts",
+      "description": "Virtual Accounts are bank accounts that are created for a specific purpose and last for specified durations. Virtual accounts are issued by Payaza’s partner banks. Our virtual account APIs can be used to create virtual accounts and perform other tasks relevant to virtual accounts. Virtual accounts are created to foster easy payment collections for your business and platform. \nStatic/Reserved Account: This virtual account is created by the merchant and remains valid indefinitely. It can be used multiple times and does not expire. \nDynamic Account: This virtual account is generated for a specific transaction or purpose. Please note that dynamic virtual account remains valid for a temporary period of time or until a payment of the specified amount is received. Upon expiry, a merchant can generate another one for a different purpose."
+    },
+    {
+      "name": "Card Collection",
+      "description": "The Card Collection APIs can be used to make card transactions, refund transactions that have been performed, check the status of a transaction and so much more."
     }
   ],
   "components": {
@@ -81,7 +93,7 @@
               "transaction_pin": {
                 "type": "integer",
                 "description": "This is the merchant's unique transaction PIN",
-                "example": 1111
+                "example": 198731
               },
               "account_reference": {
                 "type": "string",
@@ -460,6 +472,615 @@
             "type": "string",
             "description": "Last name of the user.",
             "example": "Stones"
+          }
+        }
+      },
+      "fetchAllEurSubAccountsRequest": {
+        "title": "Fetch All Euro SubAccounts Request",
+        "type": "object",
+        "properties": {
+          "pageSize": {
+            "type": "integer",
+            "description": "The number of items to return per page.",
+            "example": 10
+          },
+          "pageNumber": {
+            "type": "integer",
+            "description": "The current page number to retrieve.",
+            "example": 1
+          },
+          "currency": {
+            "type": "string",
+            "description": "The currency filter for the accounts.",
+            "example": "EUR"
+          },
+          "searchPhrase": {
+            "type": "string",
+            "description": "Optional search term to filter results.",
+            "example": ""
+          }
+        },
+        "required": ["pageSize", "pageNumber", "currency"]
+      },
+      "initiateAEurTransferRequest": {
+        "title": "Initiate A EUR Transfer",
+        "type": "object",
+        "required": ["transaction_type", "service_payload"],
+        "properties": {
+          "transaction_type": {
+            "type": "string",
+            "description": "The type of account being transferred to. **EUR** == “sepa”.",
+            "example": "sepa"
+          },
+          "service_payload": {
+            "type": "object",
+            "description": "It contains the details of the service payload.",
+            "required": [
+              "payout_amount",
+              "transaction_pin",
+              "account_reference",
+              "currency",
+              "payout_beneficiaries"
+            ],
+            "properties": {
+              "payout_amount": {
+                "type": "number",
+                "description": "The amount of the transaction.",
+                "example": 300
+              },
+              "transaction_pin": {
+                "type": "integer",
+                "description": "This is the merchant's unique transaction pin.",
+                "example": 198731
+              },
+              "account_reference": {
+                "type": "string",
+                "description": "The reference of the Payaza account. Please be advised that your Payaza Account possesses unique account references corresponding to each currency utilized.(This is available in the **“View Payaza Account Details”** API response body).",
+                "example": "88980086362"
+              },
+              "country": {
+                "type": "string",
+                "description": "The country code..",
+                "example": "NGA"
+              },
+              "currency": {
+                "type": "string",
+                "description": "The currency code.",
+                "example": "EUR"
+              },
+              "payout_beneficiaries": {
+                "type": "array",
+                "description": "It contains the details of the payout beneficiaries.",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "destination_country",
+                    "bank_name",
+                    "credit_amount",
+                    "account_number",
+                    "account_name",
+                    "bank_code",
+                    "narration",
+                    "transaction_reference",
+                    "sender"
+                  ],
+                  "properties": {
+                    "destination_country": {
+                      "type": "string",
+                      "description": "The beneficiary's country code.",
+                      "example": "NGA"
+                    },
+                    "bank_name": {
+                      "type": "string",
+                      "description": "The name of the beneficiary's bank.",
+                      "example": "Prune"
+                    },
+                    "credit_amount": {
+                      "type": "number",
+                      "description": "The amount to be credited to this particular beneficiary.",
+                      "example": 300
+                    },
+                    "account_number": {
+                      "type": "string",
+                      "description": "This is the account number of the beneficiary.",
+                      "example": "8185003687"
+                    },
+                    "account_name": {
+                      "type": "string",
+                      "description": "This is the name of the beneficiary for the transfer.",
+                      "example": "John Doe"
+                    },
+                    "bank_code": {
+                      "type": "string",
+                      "description": "This is the beneficiary's bank code. It would be in the format of a SWIFT/BIC number. It would be in the format AAAABBCC123 i.e. \nAAAA = **4 Letters representing the bank**, \nBB = **2 Letters representing the country code the bank is in**, \nCC= **2 characters showing the location code**, \n123= **3 Digits specifying a particular branch, 'XXX' represents the Bank's Head Office**.",
+                      "example": "ARPYGB21XXX"
+                    },
+                    "narration": {
+                      "type": "string",
+                      "description": "Narration for the payout (This must be 25 characters or less with no special characters).",
+                      "example": "Test"
+                    },
+                    "transaction_reference": {
+                      "type": "string",
+                      "description": "This is the unique identifier generated for each transaction by the merchant.",
+                      "example": "TDd9frfk"
+                    },
+                    "sender": {
+                      "type": "object",
+                      "description": "Details of the sender.",
+                      "required": [
+                        "sender_name",
+                        "sender_phone_number",
+                        "sender_address"
+                      ],
+                      "properties": {
+                        "sender_name": {
+                          "type": "string",
+                          "description": "The name of the sender",
+                          "example": "Jane Doe"
+                        },
+                        "sender_id": {
+                          "type": "string",
+                          "description": "The unique identifier of the sender",
+                          "example": "32"
+                        },
+                        "sender_phone_number": {
+                          "type": "string",
+                          "description": "The phone number of the sender",
+                          "example": "0124595"
+                        },
+                        "sender_address": {
+                          "type": "string",
+                          "description": "The sender's address",
+                          "example": "123, Ace Street"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "initiatePaymentRequest": {
+        "title": "Initiate Payment Request",
+        "type": "object",
+        "required": [
+          "amount",
+          "first_name",
+          "last_name",
+          "payment_option",
+          "description",
+          "transaction_reference",
+          "redirect_url",
+          "cancel_url",
+          "error_url",
+          "country_code",
+          "currency_code"
+        ],
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "The amount to be charged.",
+            "example": 2
+          },
+          "first_name": {
+            "type": "string",
+            "description": "The customer's first name.",
+            "example": "John"
+          },
+          "last_name": {
+            "type": "string",
+            "description": "The customer's last name..",
+            "example": "Doe"
+          },
+          "payment_option": {
+            "type": "string",
+            "description": "**APPLEPAY** or **GOOGLEPAY**.",
+            "example": "GOOGLEPAY"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of this transaction.",
+            "example": "Support"
+          },
+          "transaction_reference": {
+            "type": "string",
+            "description": "The unique identifier of this transaction.",
+            "example": "TX20251109"
+          },
+          "redirect_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to redirect on successsful.",
+            "example": "https://redirect.url/success"
+          },
+          "cancel_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to redirect when user cancels.",
+            "example": "https://redirect.url/cancel"
+          },
+          "error_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to redirect on failed payment.",
+            "example": "https://redirect.url/error"
+          },
+          "country_code": {
+            "type": "string",
+            "description": "The country code. (ISO 3166-1 alpha-3).",
+            "example": "NGN"
+          },
+          "currency_code": {
+            "type": "string",
+            "description": "**GBP**, **EUR** and **USD**.",
+            "example": "USD"
+          }
+        }
+      },
+      "createDynamicAccountRequest": {
+        "title": "Create Dynamic Virtual Account Request",
+        "type": "object",
+        "required": [
+          "account_name",
+          "account_type",
+          "bank_code",
+          "account_reference",
+          "customer_first_name",
+          "customer_last_name",
+          "customer_email",
+          "transaction_amount"
+        ],
+        "properties": {
+          "account_name": {
+            "type": "string",
+            "description": "The name assigned to the virtual account being created.",
+            "example": "Test DVA"
+          },
+          "account_type": {
+            "type": "string",
+            "description": "Type of virtual account. **“Dynamic‶** is the default value",
+            "example": "Dynamic"
+          },
+          "bank_code": {
+            "type": "string",
+            "description": "The code of the bank providing the virtual account. \n**“1067‶** for 78 FINANCE COMPANY LIMITED, \n**“117‶** for FIDELITY BANK LIMITED, \n **“140‶** for GLOBUS BANK LIMITED.",
+            "example": "1067"
+          },
+          "bvn": {
+            "type": "string",
+            "description": "Bank Verification Number (BVN) of the customer.",
+            "example": ""
+          },
+          "has_amount_validation": {
+            "type": "string",
+            "description": "This is used to give control on amount validation for virtual accounts being created i.e. allow underpayment or overpayment or exact amounts. \nThis is only available for **GLOBUS BANK LIMITED** and **78 FINANCE COMPANY LIMITED**.",
+            "example": "true"
+          },
+          "account_reference": {
+            "type": "string",
+            "description": "The unique identifier for the transaction..",
+            "example": "Ref123456780"
+          },
+          "customer_first_name": {
+            "type": "string",
+            "description": "The first name of the customer.",
+            "example": "John"
+          },
+          "customer_last_name": {
+            "type": "string",
+            "description": "The last name of the customer.",
+            "example": "Doe"
+          },
+          "customer_email": {
+            "type": "string",
+            "format": "email",
+            "description": "The customer's email address.",
+            "example": "johndoe@gmail.com"
+          },
+          "customer_phone_number": {
+            "type": "string",
+            "description": "The customer's phone number.",
+            "example": "07012345678"
+          },
+          "transaction_description": {
+            "type": "string",
+            "description": "The description or narration of the transaction.",
+            "example": "Test Description"
+          },
+          "transaction_amount": {
+            "type": "string",
+            "description": "The amount to be paid in the transaction.",
+            "example": "1000"
+          },
+          "expires_in_minutes": {
+            "type": "string",
+            "description": "The number of minutes for which the virtual account will be valid. The default is 30 minutes. Minimum: 15 minutes, Maximum: 480 minutes. \nThis is only available for **78 FINANCE COMPANY LIMITED**.",
+            "example": "20"
+          }
+        }
+      },
+      "createReservedAccountRequest": {
+        "title": "Create Static Virtual Account Request",
+        "type": "object",
+        "required": [
+          "account_name",
+          "account_type",
+          "bank_code",
+          "bvn",
+          "bvn_validated",
+          "account_reference",
+          "customer_first_name",
+          "customer_last_name",
+          "customer_email"
+        ],
+        "properties": {
+          "account_name": {
+            "type": "string",
+            "description": "The name assigned to the reserved account being created.",
+            "example": "Test Reserved VA"
+          },
+          "account_type": {
+            "type": "string",
+            "description": "Type of virtual account. **“Static‶** is the default value",
+            "example": "Static"
+          },
+          "bank_code": {
+            "type": "string",
+            "description": "The code of the bank providing the virtual account. \n**“1067‶** for 78 FINANCE COMPANY LIMITED \n**“117‶** for FIDELITY BANK LIMITED \n **“140‶** for GLOBUS BANK LIMITED.",
+            "example": "1067"
+          },
+          "bvn": {
+            "type": "string",
+            "description": "Bank Verification Number (BVN) of the customer..",
+            "example": "323212345"
+          },
+          "bvn_validated": {
+            "type": "boolean",
+            "description": "This indicates whether the BVN has been validated by the merchant.",
+            "example": true
+          },
+          "account_reference": {
+            "type": "string",
+            "description": "The unique identifier for the account.",
+            "example": "accRef123"
+          },
+          "customer_first_name": {
+            "type": "string",
+            "description": "The first name of the customer..",
+            "example": "John"
+          },
+          "customer_last_name": {
+            "type": "string",
+            "description": "The last name of the customer..",
+            "example": "Doe"
+          },
+          "customer_email": {
+            "type": "string",
+            "format": "email",
+            "description": "The email address of the customer..",
+            "example": "johndoe@gmail.com"
+          },
+          "customer_phone_number": {
+            "type": "string",
+            "description": "The phone number of the customer.",
+            "example": "07012345678"
+          }
+        }
+      },
+      "fundTestVirtualAccountRequest": {
+        "title": "Fund Test Virtual AccountRequest",
+        "type": "object",
+        "required": [
+          "account_name",
+          "account_number",
+          "transaction_amount",
+          "currency",
+          "source_account_number",
+          "source_account_name",
+          "source_bank_name"
+        ],
+        "properties": {
+          "account_name": {
+            "type": "string",
+            "description": "The name assigned to the virtual account.",
+            "example": "Payaza(Test DVA)"
+          },
+          "account_number": {
+            "type": "string",
+            "description": "The virtual account number.",
+            "example": "4030904675"
+          },
+          "initiation_transaction_reference": {
+            "type": "string",
+            "description": "**Required** (for Dynamic Virtual Account). The unique identifier for the transaction. This value is empty for reserved virtual accounts.",
+            "example": "Ref1234567890"
+          },
+          "transaction_amount": {
+            "type": "string",
+            "description": "the amount to be paid.",
+            "example": "1000"
+          },
+          "currency": {
+            "type": "string",
+            "description": "Currency code for the collection. Value is ‟NGN”.",
+            "example": "NGN"
+          },
+          "source_account_number": {
+            "type": "string",
+            "description": " The payer's account number.",
+            "example": "0123456789"
+          },
+          "source_account_name": {
+            "type": "string",
+            "description": "The payer's account name.",
+            "example": "Jill Stones"
+          },
+          "source_bank_name": {
+            "type": "string",
+            "description": "The payer's bank name.",
+            "example": "Test Bank"
+          }
+        }
+      },
+      "cardChargeRequest": {
+        "title": "Card Charge Request",
+        "type": "object",
+        "required": ["service_payload"],
+        "properties": {
+          "service_payload": {
+            "type": "object",
+            "description": "",
+            "required": [
+              "first_name",
+              "last_name",
+              "email_address",
+              "phone_number",
+              "amount",
+              "transaction_reference",
+              "currency",
+              "description",
+              "card"
+            ],
+            "properties": {
+              "first_name": {
+                "type": "string",
+                "description": "The first name of the customer.",
+                "example": "John"
+              },
+              "last_name": {
+                "type": "string",
+                "description": "The last name of the customer.",
+                "example": "Doe"
+              },
+              "email_address": {
+                "type": "string",
+                "format": "email",
+                "description": "The email address of the customer.",
+                "example": "johndoe@hotmail.com"
+              },
+              "phone_number": {
+                "type": "string",
+                "description": "The phone number of the customer.",
+                "example": "0939344401"
+              },
+              "amount": {
+                "type": "number",
+                "format": "double",
+                "description": "The amount to be charged.",
+                "example": 0.01
+              },
+              "transaction_reference": {
+                "type": "string",
+                "description": "The unique identifier given to a particular transaction. (Maximum character length is 15).",
+                "example": "T13501973673737"
+              },
+              "currency": {
+                "type": "string",
+                "description": "Currency code for the transaction. The base currency is NGN",
+                "example": "USD"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description for the payment.",
+                "example": "TEST"
+              },
+              "card": {
+                "type": "object",
+                "description": "The details of the card.",
+                "required": [
+                  "expiryMonth",
+                  "expiryYear",
+                  "securityCode",
+                  "cardNumber"
+                ],
+                "properties": {
+                  "expiryMonth": {
+                    "type": "string",
+                    "description": "The month the card will expire.",
+                    "example": "10"
+                  },
+                  "expiryYear": {
+                    "type": "string",
+                    "description": "The year the card will expire",
+                    "example": "26"
+                  },
+                  "securityCode": {
+                    "type": "string",
+                    "description": "CVV/CVC code.",
+                    "example": "686"
+                  },
+                  "cardNumber": {
+                    "type": "string",
+                    "description": "The number on the card.",
+                    "example": "4865550017193640"
+                  }
+                }
+              },
+              "callback_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "The callback URL provided by the merchant (Kindly ensure this accepts POST requests).",
+                "example": "https://callbackurl.com"
+              }
+            }
+          }
+        }
+      },
+      "check3dsAvailabilityRequest": {
+        "title": "Check 3DS Availability Request",
+        "type": "object",
+        "required": ["card_number", "currency"],
+        "properties": {
+          "card_number": {
+            "type": "string",
+            "description": "The number on the card.",
+            "example": "4860079468120"
+          },
+          "currency": {
+            "type": "string",
+            "description": "The currency code (e.g., NGN, USD).",
+            "example": "NGN"
+          }
+        }
+      },
+      "checkTransactionStatusRequest": {
+        "title": "Check Transaction Status Request",
+        "type": "object",
+        "required": ["service_payload"],
+        "properties": {
+          "service_payload": {
+            "type": "object",
+            "description": "Payload containing the transaction reference to query.",
+            "required": ["transaction_reference"],
+            "properties": {
+              "transaction_reference": {
+                "type": "string",
+                "description": "The unique reference of the transaction you want to check.",
+                "example": "A12345"
+              }
+            }
+          }
+        }
+      },
+      "checkRefundStatusRequest": {
+        "title": "Check Refund Status Request",
+        "type": "object",
+        "required": ["service_payload"],
+        "properties": {
+          "service_payload": {
+            "type": "object",
+            "required": ["refund_transaction_reference"],
+            "description": "It contains the details of the service payload.",
+            "properties": {
+              "refund_transaction_reference": {
+                "type": "string",
+                "description": "the unique identifier given to a particular transaction you refunded. This can be found in the response body of the “Initiate Refund API”.",
+                "example": "RF20231112-Q232USD"
+              }
+            }
           }
         }
       },
@@ -1168,6 +1789,1659 @@
             }
           }
         }
+      },
+      "getSingleEuroAccountCorporateResponse": {
+        "title": "Get Single Euro Corporate Account Response",
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 2278 },
+          "country": { "type": "string", "example": "USA" },
+          "currency": { "type": "string", "example": "EUR" },
+          "mermat": {
+            "type": "string",
+            "format": "uri",
+            "description": "Link to Memorandum and Articles of Association."
+          },
+          "status": { "type": "string", "example": "ADMIN_PENDING" },
+          "category": { "type": "string", "example": "SUB_ACCOUNT" },
+          "purpose": { "type": "string", "example": "Business Expansion" },
+          "creationReference": {
+            "type": "string",
+            "example": "e2ba38e0-485d-4ce8-bb8a-96c99ed10ebd"
+          },
+          "account_type": { "type": "string", "example": "corporate" },
+          "business_fk": { "type": "integer", "example": 3242 },
+          "business_name": { "type": "string", "example": "link" },
+          "company_name": {
+            "type": "string",
+            "example": "JohnDoe Limited"
+          },
+          "certificate_of_incorporation": {
+            "type": "string",
+            "format": "uri",
+            "description": "Link to Certificate of Incorporation."
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "country_2_iso": { "type": "string", "example": "US" },
+          "directors": {
+            "type": "array",
+            "description": "List of company directors.",
+            "items": { "$ref": "#/components/schemas/KycDocument" }
+          },
+          "shareholders": {
+            "type": "array",
+            "description": "List of company shareholders.",
+            "items": { "$ref": "#/components/schemas/KycDocument" }
+          }
+        }
+      },
+      "kycDocument": {
+        "title": "KYC Document Info",
+        "type": "object",
+        "properties": {
+          "id_file": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the ID document."
+          },
+          "id_file_back": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "URL to the back of the ID document (if applicable)."
+          },
+          "id_type": {
+            "type": "string",
+            "description": "Type of ID (e.g., passport).",
+            "example": "passport"
+          },
+          "poa_file": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to the Proof of Address."
+          },
+          "poa_type": {
+            "type": "string",
+            "description": "Type of POA (e.g., utilityBill).",
+            "example": "utilityBill"
+          }
+        }
+      },
+      "getSingleEuroAccountIndividualResponse": {
+        "title": "Get Single Euro Individual Account Response",
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 2147 },
+          "country": { "type": "string", "example": "FRA" },
+          "currency": { "type": "string", "example": "EUR" },
+          "status": { "type": "string", "example": "PROVIDER_CREATED" },
+          "category": { "type": "string", "example": "SUB_ACCOUNT" },
+          "creationReference": {
+            "type": "string",
+            "example": "ac456ecb-7870-47d4-af23-2dde8563235f"
+          },
+          "account_type": { "type": "string", "example": "user" },
+          "business_fk": { "type": "integer", "example": 2046 },
+          "first_name": { "type": "string", "example": "Kianna" },
+          "last_name": { "type": "string", "example": "Doyle" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "country_2_iso": { "type": "string", "example": "FR" },
+          "user_kyc": {
+            "type": "array",
+            "description": "KYC documents for the individual.",
+            "items": { "$ref": "#/components/schemas/kycDocument" }
+          }
+        }
+      },
+      "listOfAcceptableIdsResponse": {
+        "title": "Country Documents Response",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "description": "Request status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Country Documents"
+          },
+          "code": {
+            "type": "integer",
+            "description": "HTTP status code.",
+            "example": 200
+          },
+          "data": {
+            "type": "array",
+            "description": "List of countries and their accepted document types.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "Unique identifier for the country configuration.",
+                  "example": "b362187b-47aa-41ff-8978-73d5893ea5fa"
+                },
+                "country": {
+                  "type": "string",
+                  "description": "Full name of the country (may include currency).",
+                  "example": "Nigeria"
+                },
+                "countryShort": {
+                  "type": "string",
+                  "description": "ISO 2-character country code.",
+                  "example": "NG"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "nullable": true,
+                  "description": "Timestamp of creation (if available)."
+                },
+                "acceptedIDDocuments": {
+                  "type": "object",
+                  "description": "Boolean flags indicating accepted identity documents.",
+                  "properties": {
+                    "passport": {
+                      "type": "boolean",
+                      "description": "Is Passport accepted?",
+                      "example": true
+                    },
+                    "drivingLicense": {
+                      "type": "boolean",
+                      "description": "Is Driving License accepted?",
+                      "example": true
+                    },
+                    "residencePermit": {
+                      "type": "boolean",
+                      "description": "Is Residence Permit accepted?",
+                      "example": false
+                    },
+                    "identityCard": {
+                      "type": "boolean",
+                      "description": "Is National Identity Card accepted?",
+                      "example": true
+                    }
+                  }
+                },
+                "acceptedPOADocuments": {
+                  "type": "object",
+                  "description": "Boolean flags indicating accepted Proof of Address documents.",
+                  "properties": {
+                    "utilityBill": {
+                      "type": "boolean",
+                      "description": "Is Utility Bill accepted?",
+                      "example": true
+                    },
+                    "bankStatement": {
+                      "type": "boolean",
+                      "description": "Is Bank Statement accepted?",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "fetchAllEurSubAccountsResponse": {
+        "title": "Fetch All Euro SubAccounts Response",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Account enquiry response"
+          },
+          "status": {
+            "type": "boolean",
+            "description": "Request status.",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "description": "List of accounts found.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "Unique account ID.",
+                  "example": 3796
+                },
+                "accountName": {
+                  "type": "string",
+                  "description": "Name of the account holder.",
+                  "example": "Zachery Borer"
+                },
+                "payazaAccountReference": {
+                  "type": "string",
+                  "description": "Unique Payaza reference for the account.",
+                  "example": "80810030592"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Status of the account.",
+                  "example": "ACTIVE"
+                },
+                "accountBalance": {
+                  "type": "number",
+                  "format": "double",
+                  "description": "Current account balance.",
+                  "example": 100000000
+                },
+                "businessId": {
+                  "type": "integer",
+                  "description": "ID of the business owning the account.",
+                  "example": 2046
+                },
+                "currency": {
+                  "type": "string",
+                  "description": "Account currency.",
+                  "example": "EUR"
+                },
+                "country": {
+                  "type": "string",
+                  "description": "Account country code.",
+                  "example": "NGA"
+                },
+                "organizationName": {
+                  "type": "string",
+                  "description": "Organization name.",
+                  "example": "PAYAZA"
+                },
+                "productCode": {
+                  "type": "string",
+                  "description": "Product code.",
+                  "example": "PAYOUT-SUB-EUR"
+                },
+                "productNumber": {
+                  "type": "string",
+                  "description": "Product number.",
+                  "example": "8899"
+                },
+                "postNoCredit": {
+                  "type": "boolean",
+                  "description": "Is credit posting restricted?",
+                  "example": false
+                },
+                "postNoDebit": {
+                  "type": "boolean",
+                  "description": "Is debit posting restricted?",
+                  "example": false
+                },
+                "hasVirtualAccounts": {
+                  "type": "boolean",
+                  "description": "Does this account have virtual accounts attached?",
+                  "example": true
+                },
+                "virtualAccounts": {
+                  "type": "array",
+                  "description": "List of attached virtual accounts.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "accountNumber": {
+                        "type": "string",
+                        "description": "Virtual account number.",
+                        "example": "GB00213143149028220528"
+                      },
+                      "accountName": {
+                        "type": "string",
+                        "description": "Name on the virtual account.",
+                        "example": "Zachery Borer"
+                      },
+                      "bankCode": {
+                        "type": "string",
+                        "description": "Bank code for the virtual account.",
+                        "example": "ARPYGB21XXX"
+                      },
+                      "bankId": {
+                        "type": "integer",
+                        "description": "Bank ID.",
+                        "example": 793
+                      }
+                    }
+                  }
+                },
+                "holdTransactionAtLowBalance": {
+                  "type": "boolean",
+                  "description": "Whether transactions are held if balance is low.",
+                  "example": false
+                },
+                "createdDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Date the account was created.",
+                  "example": "2025-03-11T00:01:21.113663"
+                }
+              }
+            }
+          },
+          "responseCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Response code (if applicable).",
+            "example": null
+          },
+          "pageDetail": {
+            "type": "object",
+            "description": "Pagination details.",
+            "properties": {
+              "sorted": { "type": "boolean", "example": true },
+              "pageNumber": { "type": "integer", "example": 1 },
+              "pageSize": { "type": "integer", "example": 10 },
+              "paged": { "type": "boolean", "example": true },
+              "totalPages": { "type": "integer", "example": 2 },
+              "totalElements": { "type": "integer", "example": 10 },
+              "last": { "type": "boolean", "example": false },
+              "size": { "type": "integer", "example": 10 },
+              "number": { "type": "integer", "example": 0 },
+              "numberOfElements": { "type": "integer", "example": 10 },
+              "offset": { "type": "integer", "example": 0 }
+            }
+          }
+        }
+      },
+      "fetchEuroWalletResponse": {
+        "title": "Fetch Euro Wallet Response",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Account enquiry response"
+          },
+          "status": {
+            "type": "boolean",
+            "description": "Request status.",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "description": "List of account details found.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "description": "Unique account ID.",
+                  "example": 4258
+                },
+                "accountName": {
+                  "type": "string",
+                  "description": "Name of the account holder.",
+                  "example": "Hessel - Nolan"
+                },
+                "payazaAccountReference": {
+                  "type": "string",
+                  "description": "Payaza's unique reference ID.",
+                  "example": "80810031120"
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Account status.",
+                  "example": "ACTIVE"
+                },
+                "accountBalance": {
+                  "type": "number",
+                  "format": "double",
+                  "description": "Current balance.",
+                  "example": 100000000
+                },
+                "businessId": {
+                  "type": "integer",
+                  "description": "Associated business ID.",
+                  "example": 2046
+                },
+                "currency": {
+                  "type": "string",
+                  "description": "Currency code.",
+                  "example": "EUR"
+                },
+                "country": {
+                  "type": "string",
+                  "description": "Country code.",
+                  "example": "NGA"
+                },
+                "organizationName": {
+                  "type": "string",
+                  "description": "Organization name.",
+                  "example": "PAYAZA"
+                },
+                "productCode": {
+                  "type": "string",
+                  "description": "Product code.",
+                  "example": "PAYOUT-SUB-EUR"
+                },
+                "productNumber": {
+                  "type": "string",
+                  "description": "Product number.",
+                  "example": "8899"
+                },
+                "postNoCredit": {
+                  "type": "boolean",
+                  "description": "If true, credit transactions are blocked.",
+                  "example": false
+                },
+                "postNoDebit": {
+                  "type": "boolean",
+                  "description": "If true, debit transactions are blocked.",
+                  "example": false
+                },
+                "hasVirtualAccounts": {
+                  "type": "boolean",
+                  "description": "Indicates if virtual accounts are attached.",
+                  "example": true
+                },
+                "virtualAccounts": {
+                  "type": "array",
+                  "description": "List of virtual accounts.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "accountNumber": {
+                        "type": "string",
+                        "description": "Virtual account number.",
+                        "example": "GB08815367418119874451"
+                      },
+                      "accountName": {
+                        "type": "string",
+                        "description": "Name on the virtual account.",
+                        "example": "Hessel - Nolan"
+                      },
+                      "bankCode": {
+                        "type": "string",
+                        "description": "Bank identifier code.",
+                        "example": "ARPYGB21XXX"
+                      },
+                      "bankId": {
+                        "type": "integer",
+                        "description": "Bank ID.",
+                        "example": 991
+                      }
+                    }
+                  }
+                },
+                "holdTransactionAtLowBalance": {
+                  "type": "boolean",
+                  "description": "Hold transactions if balance is low.",
+                  "example": false
+                },
+                "createdDate": {
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "Account creation timestamp.",
+                  "example": "2025-03-19T20:14:05.417817"
+                }
+              }
+            }
+          },
+          "responseCode": {
+            "type": "string",
+            "nullable": true,
+            "description": "Response code (can be null).",
+            "example": null
+          },
+          "pageDetail": {
+            "type": "object",
+            "description": "Pagination details.",
+            "properties": {
+              "sorted": { "type": "boolean", "example": false },
+              "pageNumber": { "type": "integer", "example": 0 },
+              "pageSize": { "type": "integer", "example": 0 },
+              "paged": { "type": "boolean", "example": false },
+              "totalPages": { "type": "integer", "example": 0 },
+              "totalElements": { "type": "integer", "example": 0 },
+              "last": { "type": "boolean", "example": false },
+              "size": { "type": "integer", "example": 0 },
+              "number": { "type": "integer", "example": 0 },
+              "numberOfElements": { "type": "integer", "example": 0 },
+              "offset": { "type": "integer", "nullable": true, "example": null }
+            }
+          }
+        }
+      },
+      "initiatePaymentResponse": {
+        "title": "Initiate Payment Response",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "description": "Request status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "payment initiated successfully"
+          },
+          "data": {
+            "type": "object",
+            "description": "Payment initialization details.",
+            "properties": {
+              "error_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Redirect URL in case of error.",
+                "example": "https://redirect.url/error"
+              },
+              "merchant_reference": {
+                "type": "string",
+                "description": "The merchant's unique reference for the transaction.",
+                "example": "TX20251109"
+              },
+              "payment_option": {
+                "type": "string",
+                "description": "Selected payment method.",
+                "example": "GOOGLEPAY"
+              },
+              "transaction_amount": {
+                "type": "number",
+                "description": "Amount to be charged.",
+                "example": 2
+              },
+              "slug_name": {
+                "type": "string",
+                "description": "Slug identifier for the merchant or checkout page.",
+                "example": "dev-guide-test"
+              },
+              "currency": {
+                "type": "string",
+                "description": "Currency code.",
+                "example": "USD"
+              },
+              "paymentUrl": {
+                "type": "string",
+                "format": "uri",
+                "description": "The URL where the user should be redirected to complete payment.",
+                "example": "https://checkout.payaza.com/pay/..."
+              },
+              "transaction_reference": {
+                "type": "string",
+                "description": "Unique transaction reference.",
+                "example": "TX20251109"
+              },
+              "cancel_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Redirect URL if the user cancels.",
+                "example": "https://redirect.url/cancel"
+              },
+              "redirect_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Redirect URL upon success.",
+                "example": "https://redirect.url/success"
+              }
+            }
+          }
+        }
+      },
+      "appleAndGooglePayStatusQueryResponse": {
+        "title": "Apple & Google Pay Status Query Response",
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Request success status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Transaction data found"
+          },
+          "data": {
+            "type": "object",
+            "description": "Detailed transaction information.",
+            "properties": {
+              "transaction_reference": {
+                "type": "string",
+                "description": "Payaza's unique transaction reference.",
+                "example": "TX20251106"
+              },
+              "amount_received": {
+                "type": "number",
+                "format": "double",
+                "description": "The amount actually received.",
+                "example": 2
+              },
+              "transaction_fee": {
+                "type": "number",
+                "format": "double",
+                "description": "Fee charged for the transaction.",
+                "example": 0.11
+              },
+              "transaction_status": {
+                "type": "string",
+                "description": "Current status of the transaction.",
+                "example": "Completed"
+              },
+              "sender_name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Name of the sender (if available).",
+                "example": null
+              },
+              "sender_account_number": {
+                "type": "string",
+                "nullable": true,
+                "description": "Sender's account number (if available).",
+                "example": null
+              },
+              "source_bank_name": {
+                "type": "string",
+                "description": "Name of the source bank.",
+                "example": "NA"
+              },
+              "initiated_date": {
+                "type": "string",
+                "description": "Timestamp when the transaction started.",
+                "example": "2025-11-17 03:15:13.085178"
+              },
+              "current_status_date": {
+                "type": "string",
+                "description": "Timestamp of the last status update.",
+                "example": "2025-11-17 03:18:40.648803"
+              },
+              "currency": {
+                "type": "string",
+                "description": "Transaction currency.",
+                "example": "USD"
+              },
+              "session_id": {
+                "type": "string",
+                "description": "Unique session identifier.",
+                "example": "TRN951163956AP0"
+              },
+              "merchant_transaction_reference": {
+                "type": "string",
+                "description": "The merchant's provided reference.",
+                "example": "TX20251106"
+              },
+              "transaction_type": {
+                "type": "string",
+                "description": "Type/Method of transaction.",
+                "example": "Google Pay"
+              },
+              "virtual_account_number": {
+                "type": "string",
+                "nullable": true,
+                "description": "Associated virtual account number (if any).",
+                "example": null
+              },
+              "status_reason": {
+                "type": "string",
+                "nullable": true,
+                "description": "Reason for the current status (e.g., failure reason).",
+                "example": null
+              }
+            }
+          }
+        }
+      },
+      "createDynamicAccountResponse": {
+        "title": "Create Dynamic Virtual Account Response",
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Request success status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Virtual Account generated successfully"
+          },
+          "data": {
+            "type": "object",
+            "description": "Generated virtual account details.",
+            "properties": {
+              "account_name": {
+                "type": "string",
+                "description": "Full name on the generated account.",
+                "example": "Payaza(Test DVA)"
+              },
+              "account_number": {
+                "type": "string",
+                "description": "The 1virtual account number.",
+                "example": "7000009348"
+              },
+              "account_type": {
+                "type": "string",
+                "description": "Type of account generated (Dynamic or Static).",
+                "example": "Dynamic"
+              },
+              "bank_name": {
+                "type": "string",
+                "description": "Name of the bank provider.",
+                "example": "78 FINANCE COMPANY LIMITED"
+              },
+              "account_reference": {
+                "type": "string",
+                "description": "Merchant provided reference.",
+                "example": "Ref123456780"
+              },
+              "transaction_id": {
+                "type": "integer",
+                "description": "Unique transaction identifier.",
+                "example": 23366137
+              },
+              "transaction_amount_payable": {
+                "type": "number",
+                "description": "Amount payable (if amount validation is enabled).",
+                "example": 1000
+              },
+              "transaction_reference": {
+                "type": "string",
+                "description": "The unique identifier for the transaction..",
+                "example": "Ref123456780"
+              },
+              "expires_in_minutes": {
+                "type": "integer",
+                "description": "Duration before the account expires (for dynamic accounts).",
+                "example": 20
+              }
+            }
+          }
+        }
+      },
+      "createReservedAccountResponse": {
+        "title": "Create Reserved Virtual Account Response",
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Request success status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Virtual Account generated successfully"
+          },
+          "data": {
+            "type": "object",
+            "description": "Reserve account details.",
+            "properties": {
+              "account_name": {
+                "type": "string",
+                "description": "The name of the reserved virtual account being created.",
+                "example": "Payaza(Test Reserved VA)"
+              },
+              "account_number": {
+                "type": "string",
+                "description": "The virtual account number.",
+                "example": "7000009201"
+              },
+              "account_type": {
+                "type": "string",
+                "description": "Type of account (Static).",
+                "example": "Static"
+              },
+              "bank_name": {
+                "type": "string",
+                "description": "Name of the bank provider.",
+                "example": "78 FINANCE COMPANY LIMITED"
+              },
+              "account_reference": {
+                "type": "string",
+                "description": "The unique identifier for the account.",
+                "example": "accRef123"
+              }
+            }
+          }
+        }
+      },
+      "getVirtualAccountStatusResponse": {
+        "title": "Get Virtual Account Status Response",
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Request success status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Successful"
+          },
+          "data": {
+            "type": "object",
+            "description": "Detailed information about the virtual account.",
+            "properties": {
+              "virtual_account_number": {
+                "type": "string",
+                "description": "The virtual account number.",
+                "example": "4030623702"
+              },
+              "virtual_account_name": {
+                "type": "string",
+                "description": "Name assigned to the virtual account.",
+                "example": "Payaza(Test Reserved VA)"
+              },
+              "account_type": {
+                "type": "string",
+                "description": "Type of account (e.g., static, dynamic).",
+                "example": "static"
+              },
+              "account_status": {
+                "type": "string",
+                "description": "Current status of the account.",
+                "example": "Active"
+              },
+              "total_transactions": {
+                "type": "integer",
+                "description": "Total number of transactions performed on this account.",
+                "example": 0
+              },
+              "provider_bank_name": {
+                "type": "string",
+                "description": "Name of the underlying bank provider.",
+                "example": "78 FINANCE COMPANY LIMITED"
+              },
+              "provider_bank_code": {
+                "type": "string",
+                "description": "Bank code of the provider.",
+                "example": "110072"
+              }
+            }
+          }
+        }
+      },
+      "afterPaymentTransactionStatusResponse": {
+        "title": "After Payment Status Response",
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Request success status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Transaction data found"
+          },
+          "data": {
+            "type": "object",
+            "description": "Transaction details.",
+            "properties": {
+              "transaction_reference": {
+                "type": "string",
+                "description": "Payaza's unique transaction reference.",
+                "example": "Ref1234567890"
+              },
+              "amount_received": {
+                "type": "number",
+                "format": "double",
+                "description": "Amount received in the transaction.",
+                "example": 1000
+              },
+              "transaction_fee": {
+                "type": "number",
+                "format": "double",
+                "description": "Fee charged on the transaction.",
+                "example": 0
+              },
+              "transaction_status": {
+                "type": "string",
+                "description": "Current status of the transaction.",
+                "example": "Completed"
+              },
+              "sender_name": {
+                "type": "string",
+                "description": "Name of the sender.",
+                "example": "Jill Stones"
+              },
+              "sender_account_number": {
+                "type": "string",
+                "description": "Sender's account number.",
+                "example": "0123456789"
+              },
+              "source_bank_name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Bank name of the sender (if available).",
+                "example": null
+              },
+              "initiated_date": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date and time the transaction was initiated.",
+                "example": "2024-10-10 19:41:04.312997"
+              },
+              "current_status_date": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date and time of the last status update.",
+                "example": "2024-10-10 19:41:04.312977"
+              },
+              "currency": {
+                "type": "string",
+                "description": "Transaction currency.",
+                "example": "NGN"
+              },
+              "session_id": {
+                "type": "string",
+                "description": "Unique session ID associated with the transfer.",
+                "example": "8c35b4b0-161f-4f94-900b-05c358461d13"
+              },
+              "merchant_transaction_reference": {
+                "type": "string",
+                "description": "The reference provided by the merchant.",
+                "example": "Ref1234567890"
+              },
+              "transaction_type": {
+                "type": "string",
+                "description": "Type of transaction.",
+                "example": "VirtualAccount"
+              },
+              "virtual_account_number": {
+                "type": "string",
+                "description": "The virtual account number that received the funds.",
+                "example": "7000009348"
+              },
+              "status_reason": {
+                "type": "string",
+                "description": "Reason for the current status.",
+                "example": "Transfer Successful"
+              }
+            }
+          }
+        }
+      },
+      "beforePaymentTransactionStatusResponse": {
+        "title": "Before Payment Status Response",
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Request success status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Transaction data found"
+          },
+          "data": {
+            "type": "object",
+            "description": "Transaction details (Initialized state).",
+            "properties": {
+              "transaction_reference": {
+                "type": "string",
+                "description": "Payaza's unique transaction reference.",
+                "example": "Ref1234567890"
+              },
+              "amount_received": {
+                "type": "number",
+                "format": "double",
+                "description": "Amount received.",
+                "example": 1000
+              },
+              "transaction_fee": {
+                "type": "number",
+                "format": "double",
+                "description": "Transaction fee.",
+                "example": 0
+              },
+              "transaction_status": {
+                "type": "string",
+                "description": "Current status (e.g., Initialized).",
+                "example": "Initialized"
+              },
+              "sender_name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Sender name (null when initialized).",
+                "example": null
+              },
+              "sender_account_number": {
+                "type": "string",
+                "nullable": true,
+                "description": "Sender account number (null when initialized).",
+                "example": null
+              },
+              "source_bank_name": {
+                "type": "string",
+                "nullable": true,
+                "description": "Source bank (null when initialized).",
+                "example": null
+              },
+              "initiated_date": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Date transaction was created.",
+                "example": "2024-10-10 18:18:09.117098"
+              },
+              "current_status_date": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true,
+                "description": "Date of last status update (null if no update yet).",
+                "example": null
+              },
+              "currency": {
+                "type": "string",
+                "description": "Transaction currency.",
+                "example": "NGN"
+              },
+              "session_id": {
+                "type": "string",
+                "description": "Session ID (may be empty string if not yet assigned).",
+                "example": ""
+              },
+              "merchant_transaction_reference": {
+                "type": "string",
+                "description": "Merchant provided reference.",
+                "example": "Ref1234567890"
+              },
+              "transaction_type": {
+                "type": "string",
+                "description": "Type of transaction.",
+                "example": "VirtualAccount"
+              },
+              "virtual_account_number": {
+                "type": "string",
+                "description": "Virtual account receiving funds.",
+                "example": "7000009348"
+              },
+              "status_reason": {
+                "type": "string",
+                "description": "Reason for current status.",
+                "example": "Awaiting customer to complete payment"
+              }
+            }
+          }
+        }
+      },
+      "fundTestVirtualAccountResponse": {
+        "title": "Payment Notification Response",
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Payment Notification successful"
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Request success status.",
+            "example": false
+          }
+        }
+      },
+      "cardCharge3dsResponse": {
+        "title": "Card Charge 3DS Response",
+        "type": "object",
+        "properties": {
+          "statusOk": {
+            "type": "boolean",
+            "description": "Indicates if the initial request was valid.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Authentication Required"
+          },
+          "debugMessage": {
+            "type": "string",
+            "description": "Detailed debug message.",
+            "example": "3DS Authentication Required"
+          },
+          "descriptor": {
+            "type": "string",
+            "description": "Payment descriptor (if available).",
+            "example": ""
+          },
+          "waitForNotification": {
+            "type": "boolean",
+            "description": "Whether the client should wait for a notification.",
+            "example": false
+          },
+          "do3dsAuth": {
+            "type": "boolean",
+            "description": "Flag indicating that 3DS authentication is required.",
+            "example": true
+          },
+          "threeDsUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL to which the 3DS challenge should be submitted.",
+            "example": ""
+          },
+          "formData": {
+            "type": "string",
+            "description": "Base64 encoded form data or payload for the 3DS request.",
+            "example": "eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjQ5ZGJ..."
+          },
+          "threeDsHtml": {
+            "type": "string",
+            "description": "Full HTML form required to auto-submit the 3DS challenge.",
+            "example": "<div id='threedsChallengeRedirect'> ... </div>"
+          },
+          "paymentCompleted": {
+            "type": "boolean",
+            "description": "Indicates if the payment is complete.",
+            "example": false
+          },
+          "amountPaid": {
+            "type": "number",
+            "description": "Amount successfully paid so far.",
+            "example": 0
+          },
+          "valueAmount": {
+            "type": "number",
+            "description": "Total value amount processed.",
+            "example": 0
+          }
+        }
+      },
+      "cardChargeNon3dsResponse": {
+        "title": "Card Charge (Non-3DS) Response",
+        "type": "object",
+        "properties": {
+          "response_code": {
+            "type": "integer",
+            "description": "HTTP response code.",
+            "example": 200
+          },
+          "response_message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Operation Completed"
+          },
+          "response_content": {
+            "type": "object",
+            "description": "Detailed transaction content.",
+            "properties": {
+              "statusOk": {
+                "type": "boolean",
+                "description": "Indicates if the transaction was successful.",
+                "example": true
+              },
+              "message": {
+                "type": "string",
+                "description": "Processor message (e.g., Approved).",
+                "example": "Approved"
+              },
+              "debugMessage": {
+                "type": "string",
+                "description": "Debug message.",
+                "example": "Transaction Successful"
+              },
+              "description": {
+                "type": "string",
+                "description": "Transaction narration.",
+                "example": "Test"
+              },
+              "descriptor": {
+                "type": "string",
+                "description": "Merchant descriptor.",
+                "example": " "
+              },
+              "waitForNotification": {
+                "type": "boolean",
+                "description": "Indicates if the client should wait for a webhook.",
+                "example": true
+              },
+              "transactionReference": {
+                "type": "string",
+                "description": "Unique transaction reference.",
+                "example": "450Q03ed3dd613"
+              },
+              "customerReference": {
+                "type": "string",
+                "description": "Customer reference ID.",
+                "example": "450Q03ed3dd613"
+              },
+              "do3dsAuth": {
+                "type": "boolean",
+                "description": "Whether 3DS authentication was required (false here).",
+                "example": false
+              },
+              "paymentCompleted": {
+                "type": "boolean",
+                "description": "Indicates if payment is complete.",
+                "example": true
+              },
+              "amountPaid": {
+                "type": "number",
+                "format": "double",
+                "description": "The amount paid by the customer.",
+                "example": 0.01
+              },
+              "valueAmount": {
+                "type": "number",
+                "format": "double",
+                "description": "The value of the  amount being credited.",
+                "example": 0.0095
+              },
+              "rrn": {
+                "type": "string",
+                "description": "Retrieval Reference Number.",
+                "example": "123456789012"
+              },
+              "risk": {
+                "type": "object",
+                "description": "Risk assessment data.",
+                "example": {}
+              },
+              "acquirer_response_code": {
+                "type": "string",
+                "description": "Response code from the acquirer.",
+                "example": "00"
+              }
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "Internal status code.",
+            "example": "00"
+          }
+        }
+      },
+      "cardChargeSuccessCallbackResponse": {
+        "title": "Card Charge Successful Callback Response",
+        "type": "object",
+        "properties": {
+          "statusOk": {
+            "type": "boolean",
+            "description": "Indicates if the transaction was successful.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Approved"
+          },
+          "debugMessage": {
+            "type": "string",
+            "description": "Detailed debug message.",
+            "example": "Transaction Successful"
+          },
+          "description": {
+            "type": "string",
+            "description": "Transaction narration.",
+            "example": "Test for 3DS"
+          },
+          "descriptor": {
+            "type": "string",
+            "description": "Merchant descriptor.",
+            "example": " "
+          },
+          "waitForNotification": {
+            "type": "boolean",
+            "description": "Indicates if the client should wait for a webhook.",
+            "example": true
+          },
+          "transactionReference": {
+            "type": "string",
+            "description": "Unique transaction reference.",
+            "example": "P1KRDXCD5630"
+          },
+          "customerReference": {
+            "type": "string",
+            "description": "Customer reference ID.",
+            "example": "P1KRDXCD5630"
+          },
+          "do3dsAuth": {
+            "type": "boolean",
+            "description": "Whether 3DS authentication was required.",
+            "example": false
+          },
+          "paymentCompleted": {
+            "type": "boolean",
+            "description": "Indicates if the payment is complete.",
+            "example": true
+          },
+          "amountPaid": {
+            "type": "number",
+            "format": "double",
+            "description": "Total amount paid by the customer.",
+            "example": 24
+          },
+          "valueAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "Settlement value (amount credited).",
+            "example": 23.664
+          },
+          "payer_name": {
+            "type": "string",
+            "description": "Name of the cardholder.",
+            "example": "John Doe"
+          },
+          "source_bank_name": {
+            "type": "string",
+            "description": "Name of the issuing bank.",
+            "example": "VISA"
+          },
+          "payment_date": {
+            "type": "string",
+            "description": "Timestamp of payment.",
+            "example": "2024-03-11+19:49:43.575475932"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Timestamp when the record was created.",
+            "example": "2024-03-11+19:49:43.575475932"
+          },
+          "rrn": {
+            "type": "string",
+            "description": "Retrieval Reference Number.",
+            "example": "519219078440"
+          },
+          "risk": {
+            "type": "object",
+            "description": "Risk assessment data.",
+            "example": {}
+          },
+          "acquirer_response_code": {
+            "type": "string",
+            "description": "Response code from the acquirer.",
+            "example": "00"
+          }
+        }
+      },
+      "cardChargeFailedCallbackResponse": {
+        "title": "Card Charge Failed Callback Response",
+        "type": "object",
+        "properties": {
+          "statusOk": {
+            "type": "boolean",
+            "description": "Indicates if the transaction was successful.",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "description": "User-friendly response message.",
+            "example": "Transaction Failed"
+          },
+          "debugMessage": {
+            "type": "string",
+            "description": "Detailed reason for failure.",
+            "example": "BLOCKED"
+          },
+          "description": {
+            "type": "string",
+            "description": "Transaction narration.",
+            "example": "Test for 3DS"
+          },
+          "waitForNotification": {
+            "type": "boolean",
+            "description": "Indicates if a webhook notification is expected.",
+            "example": false
+          },
+          "transactionReference": {
+            "type": "string",
+            "description": "Unique transaction reference.",
+            "example": "PL-1KBPSCJCR2015021"
+          },
+          "do3dsAuth": {
+            "type": "boolean",
+            "description": "Whether 3DS authentication was attempted.",
+            "example": false
+          },
+          "paymentCompleted": {
+            "type": "boolean",
+            "description": "Indicates if funds were moved.",
+            "example": false
+          },
+          "amountPaid": {
+            "type": "number",
+            "description": "Amount successfully charged (0 in failure cases).",
+            "example": 0
+          },
+          "valueAmount": {
+            "type": "number",
+            "description": "Settlement value.",
+            "example": 0
+          },
+          "acquirer_response_code": {
+            "type": "string",
+            "description": "Response code from the acquiring bank (empty if blocked by risk engine before reaching bank).",
+            "example": ""
+          },
+          "risk": {
+            "type": "object",
+            "description": "Risk assessment details.",
+            "properties": {
+              "response": {
+                "type": "object",
+                "properties": {
+                  "gatewayCode": {
+                    "type": "string",
+                    "description": "Risk gateway decision.",
+                    "example": "REJECTED"
+                  },
+                  "totalScore": {
+                    "type": "integer",
+                    "description": "Total risk score assigned (higher usually means higher risk).",
+                    "example": 100
+                  },
+                  "review": {
+                    "type": "object",
+                    "properties": {
+                      "decision": {
+                        "type": "string",
+                        "example": "NOT_REQUIRED"
+                      }
+                    }
+                  },
+                  "rule": {
+                    "type": "array",
+                    "description": "List of risk rules triggered.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the rule triggered.",
+                          "example": "3D Secure Passed"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Type of rule (e.g., EXTERNAL_RULE, MSO_RULE).",
+                          "example": "EXTERNAL_RULE"
+                        },
+                        "data": {
+                          "type": "string",
+                          "description": "Specific data point associated with the rule (optional).",
+                          "example": "127.0.0.1"
+                        },
+                        "recommendation": {
+                          "type": "string",
+                          "description": "Recommended action for this specific rule (optional).",
+                          "example": "NO_ACTION"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "checkTransactionStatusResponse": {
+        "title": "Check Transaction Status Response",
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Request success status.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Transaction data found"
+          },
+          "data": {
+            "type": "object",
+            "description": "Transaction details.",
+            "properties": {
+              "transaction_reference": {
+                "type": "string",
+                "nullable": true,
+                "example": null
+              },
+              "amount_received": {
+                "type": "number",
+                "format": "double",
+                "description": "Amount received.",
+                "example": 20.28
+              },
+              "transaction_fee": {
+                "type": "number",
+                "format": "double",
+                "description": "Fee charged on the transaction.",
+                "example": 0.28
+              },
+              "transaction_status": {
+                "type": "string",
+                "description": "Current status of the transaction.",
+                "example": "Completed"
+              },
+              "sender_name": {
+                "type": "string",
+                "description": "Name of the sender or cardholder.",
+                "example": "Ray Phil"
+              },
+              "sender_account_number": {
+                "type": "string",
+                "nullable": true,
+                "description": "Sender account number (usually null for cards).",
+                "example": null
+              },
+              "source_bank_name": {
+                "type": "string",
+                "description": "Card scheme or bank name.",
+                "example": "MASTERCARD"
+              },
+              "initiated_date": {
+                "type": "string",
+                "description": "Transaction initiation timestamp.",
+                "example": "2023-02-11 09:49:09.254"
+              },
+              "current_status_date": {
+                "type": "string",
+                "description": "Last status update timestamp.",
+                "example": "2023-02-11 09:49:09.254"
+              },
+              "currency": {
+                "type": "string",
+                "description": "Transaction currency.",
+                "example": "NGN"
+              },
+              "session_id": {
+                "type": "string",
+                "description": "Unique session identifier.",
+                "example": "419309171231"
+              },
+              "merchant_transaction_reference": {
+                "type": "string",
+                "description": "Merchant provided reference.",
+                "example": "3bf267326"
+              },
+              "transaction_type": {
+                "type": "string",
+                "description": "Type of transaction.",
+                "example": "Card"
+              },
+              "virtual_account_number": {
+                "type": "string",
+                "nullable": true,
+                "description": "Virtual account number (not applicable for direct card charges).",
+                "example": null
+              },
+              "status_reason": {
+                "type": "string",
+                "description": "Reason for current status.",
+                "example": "Payment Approved"
+              }
+            }
+          }
+        }
+      },
+      "checkRefundStatusResponse": {
+        "title": "Check Refund Status Response",
+        "type": "object",
+        "properties": {
+          "statusOk": {
+            "type": "boolean",
+            "description": "Indicates if the request was successful.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message.",
+            "example": "Request Completed"
+          },
+          "transactionReference": {
+            "type": "string",
+            "description": "The reference of the original transaction being refunded.",
+            "example": "T3737157"
+          },
+          "refundReference": {
+            "type": "string",
+            "description": "Unique reference for this refund request.",
+            "example": "RF20231112-Q232USD"
+          },
+          "refundStatus": {
+            "type": "string",
+            "description": "Status of the refund (e.g., SUCCESS).",
+            "example": "SUCCESS"
+          },
+          "statusReason": {
+            "type": "string",
+            "description": "Detailed reason for the status.",
+            "example": "Refund processed successfully"
+          },
+          "refundDate": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the refund was processed.",
+            "example": "2023-11-12T23:30:06.688465"
+          },
+          "refundedAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "The amount that was refunded.",
+            "example": 5.2
+          },
+          "parentTransactionAmount": {
+            "type": "number",
+            "format": "double",
+            "description": "The total amount of the original transaction.",
+            "example": 5.2
+          }
+        }
+      },
+      "check3dsResponse": {
+        "title": "Card 3DS Availability Response",
+        "type": "object",
+        "properties": {
+          "is3dsAvailable": {
+            "type": "boolean",
+            "description": "Indicates if the card supports 3D Secure authentication.",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Response message confirming availability.",
+            "example": "3DS Authentication Available on Card."
+          }
+        }
       }
     }
   },
@@ -1177,7 +3451,7 @@
       "post": {
         "tags": ["Transfers"],
         "summary": "Initiate A Transfer",
-        "description": "This endpoint initiates a transfer from your Payaza account to a bank account.\n\n> **Important Note:**\n> Transfers are only processed on business days between 8:00 AM and 5:00 PM. <br/> Ensure your wallet is funded before initiating.",
+        "description": "This endpoint handles payout requests.\n\n> **Notes:**\n>\n> 1. Payaza bank codes can be accessed [here](https://docs.google.com/spreadsheets/d/1ZvJBIIHMlqIy0pRYDHL-4PYFpHWXgIYV3lZFSgseV7o/edit#gid=790657640).\n> 2. **International Payouts:** Payouts to non-Nigerian countries are available upon request only. Email [support@payaza.africa](mailto:support@payaza.africa) for access.\n> 3. The `account_reference` is retrieved via the View Payaza Account Details API [here](http://localhost:3001/api-reference/payaza-account/view-payaza-account-details).",
         "security": [
           {
             "ApiKeyAuth": [],
@@ -1190,7 +3464,8 @@
             "application/json": {
               "schema": {
                 "oneOf": [
-                  { "$ref": "#/components/schemas/initiateATransferRequest" }
+                  { "$ref": "#/components/schemas/initiateATransferRequest" },
+                  { "$ref": "#/components/schemas/initiateAEurTransferRequest" }
                 ]
               },
               "examples": {
@@ -1216,6 +3491,37 @@
                             "sender_name": "Jane Doe",
                             "sender_id": "",
                             "sender_phone_number": "01234595",
+                            "sender_address": "123, Ace Street"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                "eurTransfer": {
+                  "summary": "Initiate A EUR Transfer",
+                  "value": {
+                    "transaction_type": "sepa",
+                    "service_payload": {
+                      "payout_amount": 300,
+                      "transaction_pin": 1987,
+                      "account_reference": "88980086362",
+                      "country": "NGA",
+                      "currency": "EUR",
+                      "payout_beneficiaries": [
+                        {
+                          "destination_country": "NGA",
+                          "bank_name": "Prune",
+                          "credit_amount": 300,
+                          "account_number": "8185003687",
+                          "account_name": "John Doe",
+                          "bank_code": "ARPYGB21XXX",
+                          "narration": "Test",
+                          "transaction_reference": "TDd9frfk",
+                          "sender": {
+                            "sender_name": "Jane Doe",
+                            "sender_id": "32",
+                            "sender_phone_number": "0124595",
                             "sender_address": "123, Ace Street"
                           }
                         }
@@ -1761,7 +4067,7 @@
     },
     "/payaza-account/api/v1/subaccounts/merchant/euro/request": {
       "post": {
-        "tags": ["EUR Transfers"],
+        "tags": ["EUR Accounts"],
         "summary": "Request Corporate and User sub-account",
         "description": "This endpoint allows users to create a corporate or user sub-account",
         "security": [
@@ -1881,7 +4187,7 @@
     },
     "/payaza-account/api/v1/subaccounts/merchant/euro/request?category=SUB_ACCOUNT": {
       "get": {
-        "tags": ["EUR Transfers"],
+        "tags": ["EUR Accounts"],
         "summary": "Get All EUR Account Request",
         "description": "This endpoint fetches all the Euro account requests.",
         "security": [
@@ -1984,6 +4290,1470 @@
           },
           "400": {
             "description": "Payment failed"
+          }
+        }
+      }
+    },
+    "/payaza-account/api/v1/euro/account/{creationReference}": {
+      "get": {
+        "tags": ["EUR Accounts"],
+        "summary": "Get Single Euro Account Request",
+        "description": "This endpoint fetches an Euro request through its creation reference.",
+        "security": [
+          {
+            "ApiKeyAuth": ["Payaza {{Public API Key In Base64}}"],
+            "TenantID": ["test or live"]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "creationReference",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The request creation reference"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/getSingleEuroAccountIndividualResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/getSingleEuroAccountCorporateResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Individual": {
+                    "summary": "Individual Account Example",
+                    "value": {
+                      "id": 2147,
+                      "country": "FRA",
+                      "currency": "EUR",
+                      "status": "PROVIDER_CREATED",
+                      "category": "SUB_ACCOUNT",
+                      "creationReference": "ac456ecb-7870-47d4-af23-2dde8563235f",
+                      "account_type": "user",
+                      "business_fk": 2046,
+                      "user_kyc": [
+                        {
+                          "id_file": "https://payaza-assets.s3.amazonaws.com/development/1737369951133-number1.jpg",
+                          "id_file_back": null,
+                          "id_type": "passport",
+                          "poa_file": "https://payaza-assets.s3.amazonaws.com/development/1737369961250-number2.png",
+                          "poa_type": "utilityBill"
+                        }
+                      ],
+                      "first_name": "Kianna",
+                      "last_name": "Doyle",
+                      "created_at": "2025-03-19T20:15:46.308311",
+                      "country_2_iso": "FR"
+                    }
+                  },
+                  "Corporate": {
+                    "summary": "Corporate Account Example",
+                    "value": {
+                      "id": 2278,
+                      "country": "USA",
+                      "currency": "EUR",
+                      "directors": [
+                        {
+                          "id_file": "https://stevestones.com/docs/1737370156723-passport.jpeg",
+                          "id_file_back": "https://stevestones.com/docs/1737370156723-passport.jpeg",
+                          "id_type": "passport",
+                          "poa_file": "https://stevestones.com/docs/17373701573833-utilitybill.png",
+                          "poa_type": "utilityBill"
+                        }
+                      ],
+                      "shareholders": [
+                        {
+                          "id_file": "https://stevestones.com/docs/1737370156723-passport.jpeg",
+                          "id_file_back": "https://stevestones.com/docs/1737370156723-passport.jpeg",
+                          "id_type": "passport",
+                          "poa_file": "https://stevestones.com/docs/17373701573833-utilitybill.png",
+                          "poa_type": "utilityBill"
+                        }
+                      ],
+                      "mermat": "https://stevestones.com/docs/17373701569821-mermat.png",
+                      "status": "ADMIN_PENDING",
+                      "category": "SUB_ACCOUNT",
+                      "purpose": "Business Expansion",
+                      "creationReference": "e2ba38e0-485d-4ce8-bb8a-96c99ed10ebd",
+                      "account_type": "corporate",
+                      "business_fk": 3242,
+                      "business_name": "link",
+                      "company_name": "Personal Loan Account",
+                      "certificate_of_incorporation": "https://stevestones.com/docs/1737370156723-coi.jpg",
+                      "created_at": "2025-02-03T15:14:07.657648",
+                      "country_2_iso": "US"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Payment failed"
+          }
+        }
+      }
+    },
+    "/payaza-account/api/v1/euro/acceptable-ids": {
+      "get": {
+        "tags": ["EUR Accounts"],
+        "summary": "List Of Acceptable IDs",
+        "description": "This endpoint shows the list of acceptable identification documents in various countries.",
+        "security": [
+          {
+            "ApiKeyAuth": ["Payaza {{Public API Key In Base64}}"],
+            "TenantID": ["test or live"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of Acceptable IDs Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listOfAcceptableIdsResponse"
+                },
+                "examples": {
+                  "List Of Acceptable IDs": {
+                    "summary": "List Of Acceptable IDs",
+                    "value": {
+                      "status": true,
+                      "message": "Country Documents",
+                      "data": [
+                        {
+                          "id": "b362187b-47aa-41ff-8978-73d5893ea5fa",
+                          "country": "Nigeria",
+                          "countryShort": "NG",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": false,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "b2547d05-f533-4241-a814-ecd3bbddd851",
+                          "country": "United Kingdom (GBP)",
+                          "countryShort": "UK",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": true,
+                            "identityCard": false
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "2a1e13a7-96e9-4a22-aa6b-3868100a33fa",
+                          "country": "France",
+                          "countryShort": "FR",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": true,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "bfdafa95-61e5-4b57-843f-104c378145a1",
+                          "country": "Germany",
+                          "countryShort": "DE",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": true,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "1bb6071b-7934-4958-8deb-8598ef6b6ea9",
+                          "country": "Italy",
+                          "countryShort": "IT",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": true,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "48142897-a6c4-4559-bf49-9e7e9690fbed",
+                          "country": "Spain",
+                          "countryShort": "ES",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": true,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "014f3d4b-0d6f-474b-9385-891d372d2d54",
+                          "country": "Benin (XOF)",
+                          "countryShort": "BJ",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": false,
+                            "residencePermit": true,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "7272af4a-3be8-4fe2-b500-1229ceb5b2d5",
+                          "country": "Mali (XOF)",
+                          "countryShort": "ML",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": false,
+                            "residencePermit": false,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "6d89a00e-bac0-4ef7-97bc-898212a7d1df",
+                          "country": "Togo (XOF)",
+                          "countryShort": "TG",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": false,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "4d28475f-4d5f-4515-a27d-c6d1be4f25f9",
+                          "country": "Cote d'Ivoire (XOF)",
+                          "countryShort": "CI",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": false,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        },
+                        {
+                          "id": "69362fd2-9e23-4c66-a4f3-5a19bce5998d",
+                          "country": "United States of America (USD)",
+                          "countryShort": "US",
+                          "createdAt": null,
+                          "acceptedIDDocuments": {
+                            "passport": true,
+                            "drivingLicense": true,
+                            "residencePermit": false,
+                            "identityCard": true
+                          },
+                          "acceptedPOADocuments": {
+                            "utilityBill": true,
+                            "bankStatement": true
+                          }
+                        }
+                      ],
+                      "code": 200
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Payment failed"
+          }
+        }
+      }
+    },
+    "/payaza-account/api/v1/subaccounts/merchant/enquiry/business": {
+      "post": {
+        "tags": ["EUR Accounts"],
+        "summary": "Fetch All EUR subaccounts",
+        "description": "This endpoint is used to display all EUR subaccounts that have been created.",
+        "security": [
+          {
+            "ApiKeyAuth": [],
+            "TenantID": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/fetchAllEurSubAccountsRequest"
+                  }
+                ]
+              },
+              "examples": {
+                "fetchAllEurSubaccounts": {
+                  "summary": "Fetch All EUR subaccounts",
+                  "value": {
+                    "pageSize": 10,
+                    "pageNumber": 1,
+                    "currency": "EUR",
+                    "searchPhrase": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account Enquiry Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/fetchAllEurSubAccountsResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "fetchAllSEurSubAccounts": {
+                    "summary": "Fetch All EUR subaccounts",
+                    "value": {
+                      "message": "Account enquiry response",
+                      "status": true,
+                      "data": [
+                        {
+                          "id": 3796,
+                          "accountName": "Zachery Borer",
+                          "payazaAccountReference": "80810030592",
+                          "status": "ACTIVE",
+                          "accountBalance": 100000000,
+                          "businessId": 2046,
+                          "currency": "EUR",
+                          "country": "NGA",
+                          "organizationName": "PAYAZA",
+                          "productCode": "PAYOUT-SUB-EUR",
+                          "productNumber": "8899",
+                          "postNoCredit": false,
+                          "postNoDebit": false,
+                          "hasVirtualAccounts": true,
+                          "virtualAccounts": [
+                            {
+                              "accountNumber": "GB00213143149028220528",
+                              "accountName": "Zachery Borer",
+                              "bankCode": "ARPYGB21XXX",
+                              "bankId": 793
+                            }
+                          ],
+                          "holdTransactionAtLowBalance": false,
+                          "createdDate": "2025-03-11T00:01:21.113663"
+                        },
+                        {
+                          "id": 3665,
+                          "accountName": "Nikolaus and Sons",
+                          "payazaAccountReference": "80810030461",
+                          "status": "ACTIVE",
+                          "accountBalance": 100000000,
+                          "businessId": 2046,
+                          "currency": "EUR",
+                          "country": "NGA",
+                          "organizationName": "PAYAZA",
+                          "productCode": "PAYOUT-SUB-EUR",
+                          "productNumber": "8899",
+                          "postNoCredit": false,
+                          "postNoDebit": false,
+                          "hasVirtualAccounts": true,
+                          "virtualAccounts": [
+                            {
+                              "accountNumber": "GB31305690917679873490",
+                              "accountName": "Nikolaus and Sons",
+                              "bankCode": "ARPYGB21XXX",
+                              "bankId": 761
+                            }
+                          ],
+                          "holdTransactionAtLowBalance": false,
+                          "createdDate": "2025-03-09T08:30:05.188118"
+                        }
+                      ],
+                      "responseCode": null,
+                      "pageDetail": {
+                        "sorted": true,
+                        "pageNumber": 1,
+                        "pageSize": 10,
+                        "paged": true,
+                        "totalPages": 2,
+                        "totalElements": 10,
+                        "last": false,
+                        "size": 10,
+                        "number": 0,
+                        "numberOfElements": 10,
+                        "offset": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/merchant-collection/mobile_payment/initiate": {
+      "post": {
+        "tags": ["Apple Pay and Google Pay"],
+        "summary": "Initiate Payment",
+        "description": "This endpoint is used to initiate an Apple Pay or Google Pay collection.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/initiatePaymentRequest"
+                  }
+                ]
+              },
+              "examples": {
+                "initiatepayment": {
+                  "summary": "Initiate Payment Request",
+                  "value": {
+                    "amount": 2,
+                    "first_name": "John",
+                    "last_name": "Doe",
+                    "payment_option": "GOOGLEPAY",
+                    "description": "Support",
+                    "transaction_reference": "TX20251109",
+                    "redirect_url": "https://redirect.url/success",
+                    "cancel_url": "https://redirect.urlcancel",
+                    "error_url": "https://redirect.url/error",
+                    "country_code": "NGN",
+                    "currency_code": "USD"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Initiate Payment Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/initiatePaymentResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "initiatepaymentresponse": {
+                    "summary": "Success Response",
+                    "value": {
+                      "status": true,
+                      "message": "payment initiated successfully",
+                      "data": {
+                        "error_url": "https://redirect.url/error",
+                        "merchant_reference": "TX20251109",
+                        "payment_option": "GOOGLEPAY",
+                        "transaction_amount": 2,
+                        "slug_name": "dev-guide-test",
+                        "currency": "USD",
+                        "paymentUrl": "{{paymentUrl}}",
+                        "transaction_reference": "TX20251109",
+                        "cancel_url": "https://redirect.urlcancel",
+                        "redirect_url": "https://redirect.url/success"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/merchant-collection/transfer_notification_controller/transaction-query": {
+      "get": {
+        "tags": ["Apple Pay and Google Pay"],
+        "summary": "Transaction Status Query",
+        "description": "This endpoint retrieves the current status of a transaction by using its unique reference.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transaction_reference",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "TX20251109"
+            },
+            "description": "The unique identifier of the transaction."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction details fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appleAndGooglePayStatusQueryResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful Query",
+                    "value": {
+                      "message": "Transaction data found",
+                      "data": {
+                        "transaction_reference": "TX20251106",
+                        "amount_received": 2,
+                        "transaction_fee": 0.11,
+                        "transaction_status": "Completed",
+                        "sender_name": null,
+                        "sender_account_number": null,
+                        "source_bank_name": "NA",
+                        "initiated_date": "2025-11-17 03:15:13.085178",
+                        "current_status_date": "2025-11-17 03:18:40.648803",
+                        "currency": "USD",
+                        "session_id": "TRN951163956AP0",
+                        "merchant_transaction_reference": "TX20251106",
+                        "transaction_type": "Google Pay",
+                        "virtual_account_number": null,
+                        "status_reason": null
+                      },
+                      "success": true
+                    }
+                  },
+                  "initialized": {
+                    "summary": "Initialized Query",
+                    "value": {
+                      "message": "Transaction data found",
+                      "data": {
+                        "transaction_reference": "TX20251109",
+                        "amount_received": 2,
+                        "transaction_fee": 0,
+                        "transaction_status": "Initialized",
+                        "sender_name": null,
+                        "sender_account_number": null,
+                        "source_bank_name": "NA",
+                        "initiated_date": "2025-11-17 03:23:35.702050",
+                        "current_status_date": null,
+                        "currency": "USD",
+                        "session_id": "TRN472744442AA1",
+                        "merchant_transaction_reference": "TX20251109",
+                        "transaction_type": "Google Pay",
+                        "virtual_account_number": null,
+                        "status_reason": null
+                      },
+                      "success": true
+                    }
+                  },
+                  "failed": {
+                    "summary": "Failed Query",
+                    "value": {
+                      "message": "Transaction data found",
+                      "data": {
+                        "transaction_reference": "TX20251109",
+                        "amount_received": 2,
+                        "transaction_fee": 0,
+                        "transaction_status": "Failed",
+                        "sender_name": null,
+                        "sender_account_number": null,
+                        "source_bank_name": "NA",
+                        "initiated_date": "2025-11-17 03:23:35.702050",
+                        "current_status_date": "2025-11-17 03:39:31.165684",
+                        "currency": "USD",
+                        "session_id": "TRN472744442AA1",
+                        "merchant_transaction_reference": "TX20251109",
+                        "transaction_type": "Google Pay",
+                        "virtual_account_number": null,
+                        "status_reason": "Transaction status: CANCELLED"
+                      },
+                      "success": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid transaction reference format"
+          }
+        }
+      }
+    },
+    "/merchant-collection/merchant/virtual_account/generate_virtual_account": {
+      "post": {
+        "tags": ["Virtual Accounts"],
+        "summary": "Create Reserved/Dynamic Virtual Account",
+        "description": "This API endpoint allows you to create dynamic virtual accounts with a duration of 30 mins and reserved/static virtual accounts that are permanent.",
+        "security": [
+          {
+            "ApiKeyAuth": [],
+            "TenantID": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/createDynamicAccountRequest"
+                  },
+                  {
+                    "$ref": "#/components/schemas/createReservedAccountRequest"
+                  }
+                ]
+              },
+              "examples": {
+                "Dynamic Virtual Account": {
+                  "summary": "Dynamic Virtual Account",
+                  "value": {
+                    "account_name": "Test DVA",
+                    "account_type": "Dynamic",
+                    "bank_code": "1067",
+                    "bvn": "",
+                    "has_amount_validation": "true",
+                    "account_reference": "Ref123456780",
+                    "customer_first_name": "John",
+                    "customer_last_name": "Doe",
+                    "customer_email": "johndoe@gmail.com",
+                    "customer_phone_number": "07012345678",
+                    "transaction_description": "Test Description",
+                    "transaction_amount": "1000",
+                    "expires_in_minutes": "20"
+                  }
+                },
+                "Reserved Virtual Account": {
+                  "summary": "Reserved Virtual Account",
+                  "value": {
+                    "account_name": "Test Reserved VA",
+                    "account_type": "Static",
+                    "bank_code": "1067",
+                    "bvn": "323212345",
+                    "bvn_validated": true,
+                    "account_reference": "accRef123",
+                    "customer_first_name": "John",
+                    "customer_last_name": "Doe",
+                    "customer_email": "johndoe@gmail.com",
+                    "customer_phone_number": "07012345678"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/createDynamicAccountResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/createReservedAccountResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Dynamic Virtual Account": {
+                    "summary": "Success Response",
+                    "value": {
+                      "message": "Virtual Account generated successfully",
+                      "data": {
+                        "account_name": "Payaza(Test DVA)",
+                        "account_number": "7000009348",
+                        "account_type": "Dynamic",
+                        "bank_name": "78 FINANCE COMPANY LIMITED",
+                        "account_reference": "Ref123456780",
+                        "transaction_id": 23366137,
+                        "transaction_amount_payable": 1000,
+                        "transaction_reference": "Ref123456780",
+                        "expires_in_minutes": 20
+                      },
+                      "success": true
+                    }
+                  },
+                  "Reserved Virtual Account": {
+                    "summary": "Success Response",
+                    "value": {
+                      "message": "Virtual Account generated successfully",
+                      "data": {
+                        "account_name": "Payaza(Test Reserved VA)",
+                        "account_number": "7000009201",
+                        "account_type": "Static",
+                        "bank_name": "78 FINANCE COMPANY LIMITED",
+                        "account_reference": "accRef123"
+                      },
+                      "success": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/merchant-collection/merchant/virtual_account/detail/virtual_account/{virtualAccountNumber}": {
+      "get": {
+        "tags": ["Virtual Accounts"],
+        "summary": "Get Virtual Account Status",
+        "description": "This endpoint retrieves the status of a specific virtual account using the account number. It works for only static virtual accounts.",
+        "security": [
+          {
+            "ApiKeyAuth": ["Payaza {{Public API Key In Base64}}"],
+            "TenantID": ["test or live"]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "virtualAccountNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The virtual account number"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Payment successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getVirtualAccountStatusResponse"
+                },
+                "examples": {
+                  "Get Virtual Account Status Response": {
+                    "summary": "Get Virtual Account Status",
+                    "value": {
+                      "message": "Successful",
+                      "data": {
+                        "virtual_account_number": "4030623702",
+                        "virtual_account_name": "Payaza(Test Reserved VA)",
+                        "account_type": "static",
+                        "account_status": "Active",
+                        "total_transactions": 0,
+                        "provider_bank_name": "78 FINANCE COMPANY LIMITED",
+                        "provider_bank_code": "110072"
+                      },
+                      "success": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Payment failed" }
+        }
+      }
+    },
+    "/merchant-collection/transfer_notification_controller/transaction-query?transaction_reference={transactionReference}": {
+      "get": {
+        "tags": ["Virtual Accounts"],
+        "summary": "Transaction Status Query",
+        "description": "This endpoint is used to check the status of a transaction using the transaction reference.",
+        "security": [
+          {
+            "ApiKeyAuth": ["Payaza {{Public API Key In Base64}}"],
+            "TenantID": ["test or live"]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transactionReference",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique reference ID of the transaction"
+          }
+        ],
+
+        "responses": {
+          "200": {
+            "description": "Payment successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/beforePaymentResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/afterPaymentResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Before Payment": {
+                    "summary": "Before Payment Response",
+                    "value": {
+                      "message": "Transaction data found",
+                      "data": {
+                        "transaction_reference": "Ref1234567890",
+                        "amount_received": 1000,
+                        "transaction_fee": 0,
+                        "transaction_status": "Initialized",
+                        "sender_name": null,
+                        "sender_account_number": null,
+                        "source_bank_name": null,
+                        "initiated_date": "2024-10-10 18:18:09.117098",
+                        "current_status_date": null,
+                        "currency": "NGN",
+                        "session_id": "",
+                        "merchant_transaction_reference": "Ref1234567890",
+                        "transaction_type": "VirtualAccount",
+                        "virtual_account_number": "7000009348",
+                        "status_reason": "Awaiting customer to complete payment"
+                      },
+                      "success": true
+                    }
+                  },
+                  "After Payment": {
+                    "summary": "After Payment Response",
+                    "value": {
+                      "message": "Transaction data found",
+                      "data": {
+                        "transaction_reference": "Ref1234567890",
+                        "amount_received": 1000,
+                        "transaction_fee": 0,
+                        "transaction_status": "Completed",
+                        "sender_name": "Jill Stones",
+                        "sender_account_number": "0123456789",
+                        "source_bank_name": null,
+                        "initiated_date": "2024-10-10 19:41:04.312997",
+                        "current_status_date": "2024-10-10 19:41:04.312977",
+                        "currency": "NGN",
+                        "session_id": "8c35b4b0-161f-4f94-900b-05c358461d13",
+                        "merchant_transaction_reference": "Ref1234567890",
+                        "transaction_type": "VirtualAccount",
+                        "virtual_account_number": "7000009348",
+                        "status_reason": "Transfer Successful"
+                      },
+                      "success": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Payment failed" }
+        }
+      }
+    },
+    "/merchant-collection/payaza/virtual_account/fund_test_virtual_account": {
+      "post": {
+        "tags": ["Virtual Accounts"],
+        "summary": "Fund Test Virtual Account",
+        "description": "This endpoint funds the test virtual accounts. Please note that this API is just for Test.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/fundTestVirtualAccountRequest"
+                  }
+                ]
+              },
+              "examples": {
+                "Fund Test Virtual Account": {
+                  "summary": "Test Funding Request",
+                  "value": {
+                    "account_name": "Payaza(Test DVA)",
+                    "account_number": "4030904675",
+                    "initiation_transaction_reference": "Ref1234567890",
+                    "transaction_amount": "1000",
+                    "currency": "NGN",
+                    "source_account_number": "0123456789",
+                    "source_account_name": "Jill Stones",
+                    "source_bank_name": "Test Bank"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Initiate Payment Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/fundTestVirtualAccountResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Fund Test Virtual Account": {
+                    "summary": "Success Response",
+                    "value": {
+                      "message": "Payment Notification successful",
+                      "success": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/card/card_charge/": {
+      "post": {
+        "tags": ["Card Collection"],
+        "summary": "Card Charge",
+        "description": "This endpoint is used to initiate Card payments for merchants that use our platform. This document has various Request bodies and HTML text that are necessary for different integration purposes.",
+        "x-codeSamples": [
+          {
+            "lang": "3DS Authentication HTMl",
+            "label": "3DS Authentication HTML",
+            "source": "<body>\n    <div id='threedsChallengeRedirect' xmlns='http://www.w3.org/1999/html' style=' height: 100vh'>\n        <form id='threedsChallengeRedirectForm' method='POST' action='' target='challengeFrame'>\n            <input type='hidden' name='creq' id=\"creq\" value=''/>\n        </form>\n        <iframe id='challengeFrame' name='challengeFrame' width='100%' height='100%'></iframe>\n    </div>\n\n    <script>\n        const cardNumber = \"4187451844054629\"; // Card Number\n        const expiryMonth = \"07\"; // Card Expiry Month\n        const expiryYear = \"32\"; // Card Expiry Year\n        const securityCode = \"100\"; // Card Security Code\n\n        var myHeaders = new Headers();\n        myHeaders.append(\"Authorization\", \"Payaza UFo3OC1QS0xJhsksksMjFFNEYtQ0VCNy00MjAzL4MDktQkU1NEM3NDY1RDRB\");\n        myHeaders.append(\"Content-Type\", \"application/json\");\n\n        var raw = JSON.stringify({\n            \"service_type\": \"Account\",\n            \"service_payload\": {\n                \"first_name\": \"John\",\n                \"last_name\": \"Doe\",\n                \"email_address\": \"johndoe@email.com\",\n                \"phone_number\": \"090121980906\",\n                \"amount\": 11,\n                \"transaction_reference\": \"PL-1KBPSCJCR\" + Math.floor(\n                    (Math.random() * 10000000) + 1\n                ),\n                \"currency\": \"NGN\",\n                \"description\": \"Test for 3DS\",\n                \"card\": {\n                    \"expiryMonth\": expiryMonth,\n                    \"expiryYear\": expiryYear,\n                    \"securityCode\": securityCode,\n                    \"cardNumber\": cardNumber\n                }\n            }\n        });\n\n        var requestOptions = {\n            method: 'POST',\n            headers: myHeaders,\n            body: raw,\n            redirect: 'follow'\n        };\n\n        fetch(\"https://api.payaza.africa/live/card/card_charge/\", requestOptions).then(response => response.text()).then(result => {\n            result = JSON.parse(result);\n            if (result.statusOk) { // ///Handle Success Response\n                const creq = document.getElementById(\"creq\");\n                creq.value = result.formData;\n                const form = document.getElementById(\"threedsChallengeRedirectForm\");\n                form.setAttribute(\"action\", result.threeDsUrl);\n                form.submit();\n            } else { // ///Handle Error\n                console.log(\"Error found\", result.debugMessage)\n                alert(\"Payment Failed: \" + result.debugMessage)\n            }\n        }).catch(error => {\n            console.log(\"Error\", error)\n            alert(\"Exception Error: \" + error.debugMessage)\n        });\n\n\n\n        / ///////////Internal Payment Notification\n        window.addEventListener(\"message\", (event) => {\n            console.log(\"::::::::::::::::::MESSAGE EVENT GOT BACK FROM BACK-END::::::::::::::::::::::\")\n            try{\n                const response = JSON.parse(event.data);\n                console.log(\"Payment Notification\", response)\n                if (response.statusOk !== undefined) {\n                    if (response.statusOk === true && response.paymentCompleted === true) { // ////Handle payment successful, do business logic\n                        alert(\"Payment Successful\")\n                    } else { // ///Handle Failed payment\n                        alert(\"Payment Failed\")\n                    }\n                }\n            }catch(error){\n                console.log(\"Error from Parsing JSON\",error)\n            }\n        });\n    </script>\n</body>"
+          }
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/cardChargeRequest"
+                  }
+                ]
+              },
+              "examples": {
+                "Card Charge Request": {
+                  "summary": "Card Charge Request",
+                  "value": {
+                    "service_payload": {
+                      "first_name": "John",
+                      "last_name": "Doe",
+                      "email_address": "johndoe@hotmail.com",
+                      "phone_number": "0939344401",
+                      "amount": 0.01,
+                      "transaction_reference": "T13501973673737",
+                      "currency": "USD",
+                      "description": "TEST",
+                      "card": {
+                        "expiryMonth": "10",
+                        "expiryYear": "26",
+                        "securityCode": "686",
+                        "cardNumber": "4865550017193640"
+                      },
+                      "callback_url": "https://calbackurl.com"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Card Charge Responses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/cardCharge3dsResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/cardChargeSuccessCallbackResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/cardChargeFailedCallbackResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Non-3DS Response": {
+                    "summary": "Non-3DS Response",
+                    "value": {
+                      "response_code": 200,
+                      "response_message": "Operation Completed",
+                      "response_content": {
+                        "statusOk": true,
+                        "message": "Approved",
+                        "debugMessage": "Transaction Successful",
+                        "description": "Test",
+                        "descriptor": " ",
+                        "waitForNotification": true,
+                        "transactionReference": "450Q03ed3dd613",
+                        "customerReference": "450Q03ed3dd613",
+                        "do3dsAuth": false,
+                        "paymentCompleted": true,
+                        "amountPaid": 0.01,
+                        "valueAmount": 0.0095,
+                        "rrn": "123456789012",
+                        "risk": {},
+                        "acquirer_response_code": "00"
+                      },
+                      "status": "00"
+                    }
+                  },
+                  "3DS Response": {
+                    "summary": "3DS Response",
+                    "value": {
+                      "statusOk": true,
+                      "message": "Authentication Required",
+                      "debugMessage": "3DS Authentication Required",
+                      "descriptor": "",
+                      "waitForNotification": false,
+                      "do3dsAuth": true,
+                      "threeDsUrl": "https://secure-acs2ui-bk2-indmum-mumrdc.wibmo.com/v1/acs/services/browser/creq/L/8642/f701e19d-3508-11ee-b753-67cae4cf81dc",
+                      "formData": "eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjQ5ZGJmNTY4LWRjZjUtNDc1NS05ZjQ2LWU2MjIzMDk3MGU3MyIsImFjc1RyYW5zSUQiOiJmNzAxZTE5ZC0zNTA4LTExZWUtYjc1My02N2NhZTRjZjgxZGMiLCJjaGFsbGVuZ2VXaW5kb3dTaXplIjoiMDUiLCJtZXNzYWdlVHlwZSI6IkNSZXEiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMi4wIn0",
+                      "threeDsHtml": "<div id='threedsChallengeRedirect' xmlns='http://www.w3.org/1999/html' style=' height: 100vh'> <form id ='threedsChallengeRedirectForm' method='POST' action='https: //secure-acs2ui-bk2-indmum-mumrdc.wibmo.com/v1/acs/services/browser/creq/L/8642/f701e19d-3508-11ee-b753-67cae4cf81dc' target='challengeFrame'> <input type='hidden' name='creq' value='eyJ0aHJlZURTU2VydmVyVHJhbnNJRCI6IjQ5ZGJmNTY4LWRjZjUtNDc1NS05ZjQ2LWU2MjIzMDk3MGU3MyIsImFjc1RyYW5zSUQiOiJmNzAxZTE5ZC0zNTA4LTExZWUtYjc1My02N2NhZTRjZjgxZGMiLCJjaGFsbGVuZ2VXaW5kb3dTaXplIjoiMDUiLCJtZXNzYWdlVHlwZSI6IkNSZXEiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMi4wIn0' /> </form> <iframe id='challengeFrame' name='challengeFrame' width='100%' height='100%' ></iframe><script id='authenticate-payer-script'> var e=document.getElementById('threedsChallengeRedirectForm'); if (e) { e.submit(); if (e.parentNode !== null) { e.parentNode.removeChild(e);            }        } </script> </div>",
+                      "paymentCompleted": false,
+                      "amountPaid": 0,
+                      "valueAmount": 0
+                    }
+                  },
+                  "Successful Callback Response": {
+                    "summary": "Succesful Callback Response",
+                    "value": {
+                      "statusOk": true,
+                      "message": "Approved",
+                      "debugMessage": "Transaction Successful",
+                      "description": "Test for 3DS",
+                      "descriptor": " ",
+                      "waitForNotification": true,
+                      "transactionReference": "P1KRDXCD5630",
+                      "customerReference": "P1KRDXCD5630",
+                      "do3dsAuth": false,
+                      "paymentCompleted": true,
+                      "amountPaid": 24,
+                      "valueAmount": 23.664,
+                      "payer_name": "John Doe",
+                      "source_bank_name": "VISA",
+                      "payment_date": "2024-03-11+19:49:43.575475932",
+                      "created_at": "2024-03-11+19:49:43.575475932",
+                      "rrn": "519219078440",
+                      "risk": {},
+                      "acquirer_response_code": "00"
+                    }
+                  },
+                  "Failed Callback Response": {
+                    "summary": "Failed Callback Response",
+                    "value": {
+                      "statusOk": false,
+                      "message": "Transaction Failed",
+                      "debugMessage": "BLOCKED",
+                      "description": "Test for 3DS",
+                      "waitForNotification": false,
+                      "transactionReference": "PL-1KBPSCJCR2015021",
+                      "do3dsAuth": false,
+                      "paymentCompleted": false,
+                      "amountPaid": 0,
+                      "valueAmount": 0,
+                      "risk": {
+                        "response": {
+                          "gatewayCode": "REJECTED",
+                          "review": {
+                            "decision": "NOT_REQUIRED"
+                          },
+                          "rule": [
+                            {
+                              "name": "3D Secure Passed",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "AI: Average spend on this card in the last 30 days",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "AI: No. of transactions with the card 10-40 days before this",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "AI: Total spend on the card 10-40 days before this",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "AI: Total spend, same card and merchant 10-40 days before this",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "AI: mer_city",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "Cards to IP address - Multiple cards associated to the same IP address",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "Distinct card names to card",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "Distinct card names to card high",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "name": "Distinct cards to IP address",
+                              "type": "EXTERNAL_RULE"
+                            },
+                            {
+                              "data": "NO_RULES",
+                              "name": "MSO_3D_SECURE",
+                              "recommendation": "NO_ACTION",
+                              "type": "MSO_RULE"
+                            },
+                            {
+                              "data": "539983",
+                              "name": "MSO_BIN_RANGE",
+                              "recommendation": "NO_ACTION",
+                              "type": "MSO_RULE"
+                            },
+                            {
+                              "data": "127.0.0.1",
+                              "name": "MSO_IP_ADDRESS_RANGE",
+                              "recommendation": "NO_ACTION",
+                              "type": "MSO_RULE"
+                            },
+                            {
+                              "data": "UK1",
+                              "name": "MSO_IP_COUNTRY",
+                              "recommendation": "NO_ACTION",
+                              "type": "MSO_RULE"
+                            }
+                          ],
+                          "totalScore": 100
+                        }
+                      },
+                      "acquirer_response_code": ""
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/card/card_charge/transaction_status": {
+      "post": {
+        "tags": ["Card Collection"],
+        "summary": "Check Transaction Status",
+        "description": "This endpoint gets the transaction status corresponding to the provided transaction reference.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/checkTransactionStatusRequest"
+                  }
+                ]
+              },
+              "examples": {
+                "Check Transaction Status": {
+                  "summary": "Check Transaction Status Request",
+                  "value": {
+                    "service_payload": {
+                      "transaction_reference": "A12345"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Check Transaction Status Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/checkTransactionStatusResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Check Transaction Status": {
+                    "summary": "Check Tranaction Status Reponsse",
+                    "value": {
+                      "message": "Transaction data found",
+                      "data": {
+                        "transaction_reference": null,
+                        "amount_received": 20.28,
+                        "transaction_fee": 0.28,
+                        "transaction_status": "Completed",
+                        "sender_name": "Ray Phil",
+                        "sender_account_number": null,
+                        "source_bank_name": "MASTERCARD",
+                        "initiated_date": "2023-02-11 09:49:09.254",
+                        "current_status_date": "2023-02-11 09:49:09.254",
+                        "currency": "NGN",
+                        "session_id": "419309171231",
+                        "merchant_transaction_reference": "3bf267326",
+                        "transaction_type": "Card",
+                        "virtual_account_number": null,
+                        "status_reason": "Payment Approved"
+                      },
+                      "success": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/card/card_charge/refund_status": {
+      "post": {
+        "tags": ["Card Collection"],
+        "summary": "Check Refund Status",
+        "description": "This endpoint is used to fetch the status of a refunded card payment (transaction).",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/checkRefundStatusRequest"
+                  }
+                ]
+              },
+              "examples": {
+                "Check Transaction Status": {
+                  "summary": "Check Transaction Status Request",
+                  "value": {
+                    "service_payload": {
+                      "refund_transaction_reference": "RF20231112-Q232USD"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Check Transaction Status Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/checkRefundStatusResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Check Transaction Status": {
+                    "summary": "Check Transaction Status Reponsse",
+                    "value": {
+                      "transactionReference": "T3737157",
+                      "refundReference": "RF20231112-Q232USD",
+                      "refundStatus": "SUCCESS",
+                      "statusReason": "Refund processed successfully",
+                      "refundDate": "2023-11-12T23:30:06.688465",
+                      "refundedAmount": 5.2,
+                      "parentTransactionAmount": 5.2,
+                      "message": "Request Completed",
+                      "statusOk": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/card/card_charge/check_3ds_availability": {
+      "post": {
+        "tags": ["Card Collection"],
+        "summary": "Check 3DS Availability",
+        "description": "This API endpoint serves the purpose of verifying whether a card possesses 3D Secure (3DS) capabilities or not.",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/check3dsAvailabilityRequest"
+                  }
+                ]
+              },
+              "examples": {
+                "Check 3DS Availability": {
+                  "summary": "Check 3DS Availability",
+                  "value": {
+                    "card_number": "4860079468120",
+                    "currency": "NGN"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Check 3DS Availability Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/check3dsResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "transfer": {
+                    "summary": "Account Name Enquiry",
+                    "value": {
+                      "response_code": 200,
+                      "response_message": "Approved or completely successful",
+                      "response_content": {
+                        "account_number": "0190878999",
+                        "bank_code": "203012",
+                        "account_name": "Olaolu Adejide",
+                        "account_status": "ACTIVE",
+                        "transaction_reference": 9
+                      },
+                      "response_content_class": "com.fin78.app.payload.response.enquiry.account.AccountNameEnquiryInfoResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
           }
         }
       }
